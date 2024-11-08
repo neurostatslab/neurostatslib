@@ -137,7 +137,7 @@ dependencies = [
 # referred to as "extras". For a more extensive definition see:
 # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#extras
 [project.optional-dependencies]
-sphinx = [
+docs = [
   "sphinx",
   "sphinx-design",
   "myst-parser",
