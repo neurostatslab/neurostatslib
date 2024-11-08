@@ -154,9 +154,9 @@ docs = [
 # maintainers, and where to support the project financially. The key is
 # what's used to render the link text on PyPI.
 [project.urls]
-"Homepage" = "https://github.com/neurostatslab/neurostatslab-tutorials"
-"Bug Reports" = "https://github.com/neurostatslab/neurostatslab-tutorials/issues"
-"Source" = "https://github.com/neurostatslab/neurostatslab-tutorials"
+"Homepage" = "https://github.com/neurostatslab/nsl-tutorials"
+"Bug Reports" = "https://github.com/neurostatslab/nsl-tutorials/issues"
+"Source" = "https://github.com/neurostatslab/nsl-tutorials"
 
 # The following would provide a command line executable called `sample`
 # which executes the function `main` from this package when invoked.
