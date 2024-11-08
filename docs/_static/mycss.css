@@ -1,0 +1,9 @@
+html {
+    --pst-color-on-background: rgb(40, 44, 50) !important;
+}
+
+.bd-header .bd-header__inner {
+    --pst-color-text-base: #ced6dd;
+    --pst-color-text-muted: #9ca4af;
+    --pst-color-secondary: #9c5ffd;
+}
