@@ -81,15 +81,24 @@ after which, you should see the text `(nsl-data)` prepended to the current line 
 
 The nsl-tutorials repository has been set up to be locally pip-installable for easy installation of the remaining dependencies. Navigate to the cloned repository with `cd nsl-tutorials`. Once inside the folder, install the nsl-tutorials "package" with the following command:
 ```bash
-pip install .
+pip install -e .
 ```
-Using `.` installs the package found in the current directory. 
+Using `.` installs the package found in the current directory, and the `-e` flag tells pip to install in "edit" mode. This will allow the install to update with any changes locally or pulled from GitHub.
 
 Finally, we need to set this virtual environment as a jupyter kernel in order to use it in a jupyter notebook. Load the jupyter-kernels module and create the custom kernel with the following command:
 ```
 module load jupyter-kernels
 python -m make-custom-kernel nsl-data
 ```
-### 3. Run jupyter lab on the cluster
+### 3. Run Jupyter notebooks on the cluster
+The easiest way to run Jupyter notebooks on cluster resources is to use Flatiron's JupyterHub environment found at: https://jupyter.flatironinstitute.org/. 
+
+SCC documentation on using JupyterHub can be found here: https://wiki.flatironinstitute.org/SCC/JupyterHub. However, if you followed the above instructions to set up a jupyter kernel, you should be good to go. 
+
+JupyterHub will open the Jupyter server in your home folder on the cluster. If you want easy access to files in the neurstatslab group folder, you can create a symbolic link to the folder by entering the following command in a terminal in your home folder:
+```
+ln -s /mnt/home/neurostatslab neurostatslab
+```
+Listing files and directories in your home folder with `ls` should now show the neurostatslab folder.
 
 
