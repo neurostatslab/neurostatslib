@@ -48,7 +48,7 @@ From the GitHub home page, navigate to your user settings by clicking on the top
 <img src="screenshots/sshkey-1.png"></img>
 and selecting "settings" in the right sidebar.
 <img src="screenshots/sshkey-2.png"></img>
-From there, select "SSH and GPG keys" and click the "New SSH key" in the upper right.
+From there, select "SSH and GPG keys" in the left sidebar and click the "New SSH key" in the upper right.
 <img src="screenshots/sshkey-3.png"></img>
 You'll navigate to a form where you need to give your new SSH key a name, such as "rusty-key", and paste the public key from the previous step in the "Key" box.
 <img src="screenshots/sshkey-4.png"></img>
