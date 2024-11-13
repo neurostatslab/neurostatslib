@@ -56,5 +56,5 @@ setup(
     version="v0.0.1",
     zip_safe=False,
     long_description_content_type="text/markdown",
-    download_url="hhttps://github.com/neurostatslab/nsl-tutorials/archive/refs/heads/main.zip",
+    download_url="https://github.com/neurostatslab/nsl-tutorials/archive/refs/heads/main.zip",
 )
