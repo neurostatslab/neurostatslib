@@ -138,7 +138,7 @@ dependencies = [
 # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#extras
 [project.optional-dependencies]
 docs = [
-  "sphinx",
+  "sphinx>=8.0.0",
   "sphinx-autobuild",
   "sphinx-design",
   "myst-parser",
