@@ -99,6 +99,32 @@ JupyterHub will open the Jupyter server in your home folder on the cluster. If y
 ```
 ln -s /mnt/home/neurostatslab neurostatslab
 ```
-Listing files and directories in your home folder with `ls` should now show the neurostatslab folder.
+Listing files and directories in your home folder with `ls` should now show the "neurostatslab" folder.
+
+## Deploying the docs
+If you want to edit and deploy the documentation, I recommend doing so locally to not have to worry about ssh port forwarding. The website is built using [Sphinx](https://www.sphinx-doc.org/en/master/), and pages are formatted with [Markdown](https://www.markdownguide.org)
+
+Deploying the docs requires additional dependencies. In a virtual environment in the nsl-tutorials folder, you can install the package with additional dependencies with the following command:
+```
+pip install -e ".[docs]"
+```
+To build the doc pages, first navigate to the docs subdirectory, `cd docs`, and enter the command
+```
+make html
+```
+This will create and populate the **_build** folder, where the website can be viewed by opening the html file found at **_build/html/index.html**. If you change any files, you will need to rebuild the site with the command above. To rebuild from scratch, use can use the command
+```
+make clean
+```
+to remove the existing "_build" folder before building the docs with `make html`
+
+If you want to serve a live version of the website that updates automatically with saved edits, you can use [sphinx-autobuild](https://sphinx-extensions.readthedocs.io/en/latest/sphinx-autobuild.html). From the docs folder, run the command
+```
+sphinx-autobuild . _build/html
+```
+where `.` signifies the docs directory, and `_build/html` is where the output is written. (This can also be called from the **nsl-tutorials** directory by including "docs" in each path, i.e. `sphinx-autobuild docs docs/_build/html`.) This will give print an address where the website is being served on the default port, which is likely http://127.0.0.1:8000/, where 8000 is the port on which it is served. You can visit this URL in your browser to view and interact with the website. You can change the port with the `--port` flag, e.g. appending `--port 8888` will serve the website on port 8888.
+
+If you want to view docs built from the cluster, you will need use [SSH port forwarding](https://www.ssh.com/academy/ssh/tunneling-example). If 8000 is the remote port being forwarded to some local port, e.g. 8080, then you can visiting the above address on a local browser by replacing the cluster port (8000) with the local port (8080), e.g. http://127.0.0.1:8080/.
+
 
 

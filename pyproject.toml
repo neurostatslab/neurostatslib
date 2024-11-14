@@ -139,6 +139,7 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
   "sphinx",
+  "sphinx-autobuild",
   "sphinx-design",
   "myst-parser",
   "pydata-sphinx-theme"]
