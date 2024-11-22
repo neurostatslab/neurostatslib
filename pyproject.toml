@@ -116,16 +116,11 @@ classifiers = [
 # For an analysis of this field vs pip's requirements files see:
 # https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [
-  "numpy",
-  "scipy",
-  "scikit-learn",
-  "matplotlib",
-  "seaborn",
-  "pandas",
-  "pynapple",
+  "jupyter",
+  "ipython",
+  "pynapple @ git+https://github.com/pynapple-org/pynapple.git@dev",
   "nemos",
-  "dandi",
-  "pynwb"]
+]
 
 # List additional groups of dependencies here (e.g. development
 # dependencies). Users will be able to install these using the "extras"
