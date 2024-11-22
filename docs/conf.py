@@ -15,7 +15,6 @@ author = "SJ Venditto"
 
 extensions = [
     "sphinx_design",
-    # "myst_parser",
     "myst_nb",
 ]
 

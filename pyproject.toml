@@ -141,7 +141,7 @@ docs = [
   "sphinx>=8.0.0",
   "sphinx-autobuild",
   "sphinx-design",
-  "myst-parser",
+  "myst-nb",
   "pydata-sphinx-theme"]
 
 # List URLs that are relevant to your project
