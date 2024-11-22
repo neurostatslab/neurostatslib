@@ -122,7 +122,7 @@ If you want to serve a live version of the website that updates automatically wi
 ```
 sphinx-autobuild . _build/html
 ```
-where `.` signifies the docs directory, and `_build/html` is where the output is written. (This can also be called from the **nsl-tutorials** directory by including "docs" in each path, i.e. `sphinx-autobuild docs docs/_build/html`.) This will give print an address where the website is being served on the default port, which is likely http://127.0.0.1:8000/, where 8000 is the port on which it is served. You can visit this URL in your browser to view and interact with the website. You can change the port with the `--port` flag, e.g. appending `--port 8888` will serve the website on port 8888.
+where `.` signifies the docs directory, and `_build/html` is where the output is written. (This can also be called from the **nsl-tutorials** directory by including "docs" in each path, i.e. `sphinx-autobuild docs docs/_build/html`.) This will print an address where the website is locally hosted on some default port, which is likely http://127.0.0.1:8000/, where 8000 is the port on which the website is served. You can visit this URL in your browser to view and interact with the website. You can change the port with the `--port` flag, e.g. appending `--port 8888` will serve the website on port 8888.
 
 If you want to view docs built from the cluster, you will need use [SSH port forwarding](https://www.ssh.com/academy/ssh/tunneling-example). If 8000 is the remote port being forwarded to some local port, e.g. 8080, then you can visiting the above address on a local browser by replacing the cluster port (8000) with the local port (8080), e.g. http://127.0.0.1:8080/.
 
