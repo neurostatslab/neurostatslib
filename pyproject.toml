@@ -142,6 +142,7 @@ docs = [
   "sphinx-autobuild",
   "sphinx-design",
   "myst-nb",
+  "jupytext",
   "pydata-sphinx-theme"]
 
 # List URLs that are relevant to your project
