@@ -164,4 +164,4 @@ sample = "sample:main"
 # This is configuration specific to the `setuptools` build backend.
 # If you are using a different build backend, you will need to change this.
 [tool.setuptools.packages.find]
-include = ["nsl-tutorials"]
+include = ["neurotutorials"]
