@@ -118,8 +118,10 @@ classifiers = [
 dependencies = [
   "jupyter",
   "ipython",
+  "pooch",
+  "mat73",
   "pynapple @ git+https://github.com/pynapple-org/pynapple.git@dev",
-  "nemos",
+  "nemos @ git+https://github.com/flatironinstitute/nemos.git@development",
 ]
 
 # List additional groups of dependencies here (e.g. development
@@ -164,4 +166,4 @@ sample = "sample:main"
 # This is configuration specific to the `setuptools` build backend.
 # If you are using a different build backend, you will need to change this.
 [tool.setuptools.packages.find]
-include = ["neurotutorials"]
+include = ["pynacollada"]

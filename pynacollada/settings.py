@@ -1,13 +1,16 @@
 import os
 import json
+import pooch
+from pathlib import Path
+from os import PathLike
 
-LOCALCONFIG = "nsl_tutorials_conf.json"
+LOCAL_CONFIG = "nsl_tutorials_conf.json"
 
 # try subdirectory data, otherwise default to working directory
-data_path = os.path.join(os.getcwd(), "data")
+DEFAULT_DIR = pooch.os_cache("pynacollada")
 defaults = dict(
     {
-        "data_path": data_path if os.path.exists(data_path) else os.getcwd(),
+        "data_dir": DEFAULT_DIR,
     }
 )
 
@@ -22,7 +25,7 @@ class Config:
 
     Attributes
     ----------
-    data_path : str
+    data_dir : str
         Path to data directory. Defaults to subdirectory 'data' if it exists in the current working directory, otherwise defaults to the current working directory.
 
     Examples
@@ -30,29 +33,29 @@ class Config:
     View current configuration settings:
     >>> import neurotutorials as nt
     >>> nt.config
-    {'data_path': '/path/to/data'}
+    {'data_dir': '/path/to/data'}
 
     Update configuration settings:
     1. Using `update` method
-    >>> nt.config.update({'data_path': '/path/to/new/data'})
+    >>> nt.config.update({'data_dir': '/path/to/new/data'})
     >>> nt.config
-    {'data_path': '/path/to/new/data'}
+    {'data_dir': '/path/to/new/data'}
 
     2. Using dictionary-like syntax
-    >>> nt.config['data_path'] = '/path/to/newer/data'
+    >>> nt.config['data_dir'] = '/path/to/newer/data'
     >>> nt.config
-    {'data_path': '/path/to/newer/data'}
+    {'data_dir': '/path/to/newer/data'}
 
     3. Update as an attribute
-    >>> nt.config.data_path = '/path/to/newest/data'
+    >>> nt.config.data_dir = '/path/to/newest/data'
     >>> nt.config
-    {'data_path': '/path/to/newest/data'}
+    {'data_dir': '/path/to/newest/data'}
     """
 
     _instance = None
 
     # override __new__ to enforce a single instance of Config
-    def __new__(cls, conf_file=LOCALCONFIG, defaults=defaults):
+    def __new__(cls, conf_file=LOCAL_CONFIG, defaults=defaults):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
@@ -81,8 +84,12 @@ class Config:
     def _validate_conf(cls, conf):
         if not isinstance(conf, dict):
             raise ValueError("Configuration must be a dictionary")
-        if not os.path.exists(conf["data_path"]):
-            raise ValueError(f"Data path {conf['data_path']} does not exist")
+        if "data_dir" in conf:
+            if isinstance(conf["data_dir"], str):
+                # convert string to path
+                conf["data_dir"] = Path(conf["data_dir"])
+            if not isinstance(conf["data_dir"], PathLike):
+                raise ValueError("data_dir must be a string or PathLike object")
 
     def update(self, conf):
         """
@@ -96,7 +103,7 @@ class Config:
         Config._validate_conf(conf)
         self.__dict__.update(conf)
 
-    def save(self, conf_file=LOCALCONFIG):
+    def save(self, conf_file=LOCAL_CONFIG):
         """
         Save a local configuration file.
 
@@ -109,7 +116,7 @@ class Config:
         --------
         Save current configuration settings in the current working directory:
         >>> import neurotutorials as nt
-        >>> nt.config["data_path"] = "/new/path/to/data"
+        >>> nt.config["data_dir"] = "/new/path/to/data"
         >>> nt.config.save()
 
         Save configuration settings to a different location:
@@ -118,7 +125,7 @@ class Config:
         with open(conf_file, "w") as f:
             json.dump(self.__dict__, f, indent=4)
 
-    def load(self, conf_file=LOCALCONFIG):
+    def load(self, conf_file=LOCAL_CONFIG):
         """
         Load settings from a configuration file.
 
