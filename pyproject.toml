@@ -118,8 +118,12 @@ classifiers = [
 dependencies = [
   "jupyter",
   "ipython",
+  "dandi",
   "pooch",
   "mat73",
+  "matplotlib",
+  "seaborn",
+  "scikit-learn",
   "pynapple @ git+https://github.com/pynapple-org/pynapple.git@dev",
   "nemos @ git+https://github.com/flatironinstitute/nemos.git@development",
 ]

@@ -1,6 +1,8 @@
 # nsl-tutorials
 Repository containing instructions and example notebooks to orient lab members with different datasets and common analysis pipelines
 
+The ultimate goal is to provide these tutorials in a publically-available, installable package that utilyzes pynapple, nemos, and other relevant analysis packages. The proposed name for this package is **pynacollada**: **PY**thon **N**eural **A**nalysis **COLLA**borative **DA**tasets.
+
 ## Installation on cluster
 ### 1. Download repository
 #### 1.1 Connect to rusty

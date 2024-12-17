@@ -21,6 +21,10 @@ requirements = [
     "nemos",
     "dandi",
     "pynwb",
+    "pooch",
+    "mat73",
+    "ipython",
+    "jupyter",
 ]
 
 setup(

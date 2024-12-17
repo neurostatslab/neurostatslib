@@ -1,110 +1,185 @@
 import os, shutil, glob
-import pooch
-from pooch import Pooch
-import dandi
-import fsspec
-import h5py
-from dandi.dandiapi import DandiAPIClient
-from fsspec.implementations.cached import CachingFileSystem
-from pynwb import NWBHDF5IO
-from pynacollada.settings import config
 from pathlib import Path
-from .loaders import dandi_downloader, load_nwb
-
-DATA_REGISTRY = {
-    "mesoscale_activity": {
-        "sub-480928_ses-20210129T132207_behavior+ecephys+ogen.nwb": "3526a812f126fe09205c4ef5592974cce78bab5625f3eacf680165e35d56b443",
-        # "sub-484672_ses-20210321T131204_behavior+ecephys+ogen.nwb": "e5017930d129797d51fc1cfa3f434d51f54988f1f726f8ed121138b56f2291b3", # smaller file for testing
-    },
-    "perceptual_straightening": {
-        "ay5_u002_image_sequences.mat": "c1b8a03e624a1e79b6c8c77fb3f9d83cd6fc9ee364f5ed334883bbc81c38ca0f",
-        "stim_info.mat": "a7880cd0a0321d72c82f0639078aa017b9249a2bd90320c19182cd0ee34de890",
-        "stim_matrix.mat": "910f4ac5a5a8b2ffd6ed165a9cd50260663500cd17ed69a547bca1f1ae3290fb",
-    },
-}
-
-"https://api.dandiarchive.org/api/assets/d524f0d4-6f5c-4d74-8f99-094e360579c5/download/"
-
-DATA_URLS = {
-    "mesoscale_activity": {
-        "sub-480928_ses-20210129T132207_behavior+ecephys+ogen.nwb": "https://api.dandiarchive.org/api/assets/3d142f75-f3c0-4106-9533-710d26f12b02/download/",
-        # "sub-484672_ses-20210321T131204_behavior+ecephys+ogen.nwb": "https://api.dandiarchive.org/api/assets/ad207ee4-8f59-47f3-9201-005d933b7ac1/download/"
-    },
-    "perceptual_straightening": {
-        "ay5_u002_image_sequences.mat": "https://osf.io/9kbnw/download",
-        "stim_info.mat": "https://osf.io/gwtcs/download",
-        "stim_matrix.mat": "https://osf.io/bh6mu/download",
-    },
-}
+from dandi.download import download as dandi_download
+from pynwb import NWBHDF5IO
+from hdmf.container import Container
+import numpy as np
+import mat73
+import scipy
 
 
-DATA_DOWNLOADER = {
-    "mesoscale_activity": dandi_downloader,
-    "perceptual_straightening": None,
-}
-
-# DATA_LOADER = {
-#     "mesoscale_activity": load_nwb,
-#     "perceptual_straightening": load_mat,
-# }
-
-# dataset = "mesoscale_activity"
-
-
-def fetch_data(dataset, stream_data=False):
+def dandi_downloader(url, output_file, pooch):
     """
-    Fetches tutorial data from disk, or downloads it if it doesn't exist.
+    Custom downloader for dandi files through pooch
 
     Parameters
     ----------
-    dataset : str
-        Name of the tutorial whose data should be fetched.
-    stream_data : bool
-        Whether to stream the data instead of downloading directly. Only works for DANDI datasets. Defaults to False.
+    url : str
+        URL to download the file from
+    output_file : str
+        Path to save the downloaded file
+    pooch : pooch.Pooch
+        Pooch object used to download the file. Not used, but needed for compatibility with pooch
+    """
+    # dandi downloader is faster than pooch for dandi files,
+    # so we write a custom downloader that uses dandi
+    try:
+        dandi_download(url, output_file)
+    finally:
+        nwbfile = glob.glob(output_file + "/*.nwb*")[0]
+        if os.path.isdir(nwbfile):
+            # if it's a folder, the download failed or was interrupted
+            # echo pooch clean up and remove everything
+            # pooch can't do this because it will be a folder
+            shutil.rmtree(output_file)
+        else:
+            # for compatibility with pooch checks, we need to move the dandi downloaded file
+            # and rename it to pooch's temp file name, which is currently a folder
+            fname = Path(nwbfile).name
+            parent = Path(output_file).parent
+            shutil.move(nwbfile, parent)  # move out of temp folder
+            shutil.rmtree(output_file)  # remove temp folder
+            os.rename(parent / fname, output_file)  # rename file to temp name
 
-    Returns
-    -------
 
-
+def load_nwb(file_path):
+    """
+    Wrapper for loading a NWB file, using either a string input with the file path, or a length-1 list of a string with the file path.
     """
 
-    manager = pooch.create(
-        path=config["data_dir"] / dataset,
-        base_url="",
-        urls=DATA_URLS[dataset],
-        registry=DATA_REGISTRY[dataset],
-        retry_if_failed=2,
-        allow_updates="POOCH_ALLOW_UPDATES",
+    if isinstance(file_path, list):
+        if len(file_path) == 1:
+            file_path = file_path[0]
+        else:
+            raise ValueError("Only one nwb file can be loaded at a time.")
+    io = NWBHDF5IO(file_path, "r")
+    return io.read()
+
+
+class MatData(Container):
+    """
+    HDMF container extended to display properties of array-like data.
+
+    Parameters
+    ----------
+    name : str
+        Name of the data array
+    values : np.ndarray
+        Values of the data array. Must be a numpy array.
+
+    Attributes
+    ----------
+    shape : str
+        Shape of the data array
+    dtype : str
+        Data type of the array elements
+    values : np.ndarray
+        Values of the data array
+    """
+
+    __fields__ = (
+        "shape",
+        "dtype",
+        "values",
     )
 
-    files = []
-    for key in DATA_URLS[dataset]:
-        files.append(
-            manager.fetch(
-                key,
-                progressbar=True,
-                downloader=DATA_DOWNLOADER[dataset],
-            )
-        )
-
-    return files
+    def __init__(self, name, values):
+        super().__init__(name)
+        self.shape = str(np.shape(values))
+        # endians don't print for some reason
+        self.dtype = str(values.dtype).replace("<", "").replace(">", "")
+        self.values = values
 
 
-# def load_data(dataset, stream_data=False):
-#     """
-#     Load tutorial data from disk, or download it if it doesn't exist.
+class MatField(Container):
+    """
+    HDMF container extended to display properties of single-valued fields.
 
-#     Parameters
-#     ----------
-#     dataset : str
-#         Name of the tutorial whose data should be fetched.
-#     stream_data : bool
-#         Whether to stream the data instead of downloading directly. Only works for DANDI datasets. Defaults to False.
+    Parameters
+    ----------
+    name : str
+        Name of the field
+    value : any
+        Value of the field
 
-#     Returns
-#     -------
+    Attributes
+    ----------
+    type : str
+        Type of the field
+    value : any
+        Value of the field
+    """
+
+    __fields__ = (
+        "type",
+        "value",
+    )
+
+    def __init__(self, name, value):
+        super().__init__(name)
+        # endians don't print for some reason
+        self.type = type(value).__name__.replace("<", "").replace(">", "")
+        self.value = value
 
 
-#     """
-#     files = fetch_data(dataset, stream_data)
-#     return DATA_LOADER[dataset](files)
+def mat_container(struct, name="root"):
+    """
+    Function to create a container with dynamic fields according to an input dictionary / loaded matlab struct.
+
+    This function is called recursively such that nested structs / dictionaries are represented as nested containers. Arrays are represented as MatData containers, and single values are represented as MatField containers.
+
+    Parameters
+    ----------
+    struct : dict
+        Dictionary or matlab struct loaded with mat73.loadmat or scipy.io.loadmat
+    name : str
+        Name of the container. On the first call, this will be the name of the outermost container. On nested calls, it will be the dictionary key associated with the conatainer values.
+    """
+
+    # recursive function to create nested containers
+    def get_container(k, d):
+        if isinstance(d, dict):
+            return mat_container(d, k)
+        elif isinstance(d, (np.ndarray, list)):
+            d = np.array(d)
+            if len(d.shape):
+                return MatData(k, np.array(d))
+            elif np.issubdtype(d.dtype, np.number):
+                return MatField(k, float(d))
+            else:
+                return MatField(k, str(d))
+        else:
+            return MatField(k, d)
+
+    FLDS = struct.keys()
+
+    # HDMF container extended with fields set by keys of the input
+    class MatFile(Container):
+        __fields__ = tuple(FLDS)
+
+    container = MatFile(name=name)
+
+    # set fields of the container
+    for parent_key, parent_data in struct.items():
+        setattr(container, parent_key, get_container(parent_key, parent_data))
+
+    return container
+
+
+def load_mat(file_path, file_name="root"):
+    """
+    Load in a .mat file or files and returns an extended HDMF container with the data. The HDMF container allows for easy visualization of the data and its structure in a Jupyter notebook.
+    """
+    if isinstance(file_path, str):
+        file_path = [file_path]
+
+    data = {}
+    for f in file_path:
+        try:
+            # mat files saved in >v7.3 format are hdf5 files and handled by mat73
+            data[Path(f).stem] = mat73.loadmat(f)
+        except TypeError:
+            # older mat files are handled by scipy
+            data[Path(f).stem] = scipy.io.loadmat(f)
+
+    return mat_container(data, file_name)

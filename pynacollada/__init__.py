@@ -1,2 +1,3 @@
 from .settings import config
-from .io import fetch_data
+from .registry import fetch_data, load_data
+from .io import load_nwb, load_mat
