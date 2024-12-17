@@ -3,9 +3,16 @@ Repository containing instructions and example notebooks to orient lab members w
 
 The ultimate goal is to provide these tutorials in a publically-available, installable package that utilyzes pynapple, nemos, and other relevant analysis packages. The proposed name for this package is **pynacollada**: **PY**thon **N**eural **A**nalysis **COLLA**borative **DA**tasets.
 
+## Contents
+* [Installation on cluster](#installation-on-cluster)
+  * [Download repository](#download-repository)
+  * [Set up python virtual environment on cluster](#set-up-python-virtual-environment-on-cluster)
+  * [Run Jupyter notebooks on the cluster](#run-jupyter-notebooks-on-the-cluster)
+* [Deploying the docs](#deploying-the-docs)
+  
 ## Installation on cluster
-### 1. Download repository
-#### 1.1 Connect to rusty
+### Download repository
+#### Connect to rusty
 If you're on the guest network or offsite, you need to first connect to flatiron gateway before connecting to rusty. Enter the following command in your terminal,
 ```bash
 ssh -p 61022 user@gateway.flatironinstitute.org
@@ -16,7 +23,7 @@ ssh rusty
 ```
 This will bring you to a login node in your home folder.
 
-#### 1.2 Generate ssh key 
+#### Generate ssh key 
 Since this is a private repository, we need to set up access in order to clone it. To do so, generate a new ssh key pair, replacing "user@example.com" with your github email address:
 ```bash
 ssh-keygen -t ed25519 -C “user@example.com”
@@ -45,7 +52,7 @@ ssh-ed25519 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 Copy this full output from your terminal for the next step.
 
-#### 1.2 Save public key in github
+#### Save public key in github
 From the GitHub home page, navigate to your user settings by clicking on the top right icon
 <img src="screenshots/sshkey-1.png"></img>
 and selecting "settings" in the right sidebar.
@@ -56,7 +63,7 @@ You'll navigate to a form where you need to give your new SSH key a name, such a
 <img src="screenshots/sshkey-4.png"></img>
 Click "Add SSH key" to add this key to your account.
 
-#### 1.3 Clone repository to cluster
+#### Clone repository to cluster
 In your home folder on rusty, you can now clone the "nsl-tutorials" repository. Use the following commands to load the git module and clone the repository.
 ```bash
 module load git
@@ -64,7 +71,7 @@ git clone git@github.com:neurostatslab/nsl-tutorials.git
 ```
 This will download the repository into a new directory `nsl-tutorials`.
 
-### 2. Set up python virtual environment on cluster
+### Set up python virtual environment on cluster
 We'll want to set up a new python virtual environment and set it as a jupyter kernel in order to access the tutorial notebooks. First, load the python module:
 ```bash
 module load python
@@ -92,7 +99,7 @@ Finally, we need to set this virtual environment as a jupyter kernel in order to
 module load jupyter-kernels
 python -m make-custom-kernel nsl-data
 ```
-### 3. Run Jupyter notebooks on the cluster
+### Run Jupyter notebooks on the cluster
 The easiest way to run Jupyter notebooks on cluster resources is to use Flatiron's JupyterHub environment found at: https://jupyter.flatironinstitute.org/. 
 
 SCC documentation on using JupyterHub can be found here: https://wiki.flatironinstitute.org/SCC/JupyterHub. However, if you followed the above instructions to set up a jupyter kernel, you should be good to go. 
