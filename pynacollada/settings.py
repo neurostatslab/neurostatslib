@@ -7,7 +7,7 @@ from os import PathLike
 LOCAL_CONFIG = "nsl_tutorials_conf.json"
 
 # try subdirectory data, otherwise default to working directory
-DEFAULT_DIR = pooch.os_cache("pynacollada")
+DEFAULT_DIR = str(pooch.os_cache("pynacollada"))
 defaults = dict(
     {
         "data_dir": DEFAULT_DIR,
@@ -85,10 +85,10 @@ class Config:
         if not isinstance(conf, dict):
             raise ValueError("Configuration must be a dictionary")
         if "data_dir" in conf:
-            if isinstance(conf["data_dir"], str):
-                # convert string to path
-                conf["data_dir"] = Path(conf["data_dir"])
-            if not isinstance(conf["data_dir"], PathLike):
+            if isinstance(conf["data_dir"], PathLike):
+                # convert path to string for serialization
+                conf["data_dir"] = str(conf["data_dir"])
+            if not isinstance(conf["data_dir"], str):
                 raise ValueError("data_dir must be a string or PathLike object")
 
     def update(self, conf):
