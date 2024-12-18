@@ -11,6 +11,7 @@ DEFAULT_DIR = pooch.os_cache("pynacollada")
 defaults = dict(
     {
         "data_dir": DEFAULT_DIR,
+        "unique_data_dir": {},
     }
 )
 
@@ -58,16 +59,15 @@ class Config:
     def __new__(cls, conf_file=LOCAL_CONFIG, defaults=defaults):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance.update(defaults)
 
             if os.path.exists(conf_file):
                 import json
 
                 with open(conf_file, "r") as f:
                     conf = json.load(f)
-            else:
-                conf = defaults
 
-            cls._instance.update(conf)
+                cls._instance.update(conf)
 
         return cls._instance
 

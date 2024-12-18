@@ -69,8 +69,13 @@ def fetch_data(dataset, stream_data=False):
 
     """
 
+    if dataset in config["unique_data_dir"].keys():
+        data_dir = config["unique_data_dir"][dataset]
+    else:
+        data_dir = config["data_dir"] / dataset
+
     manager = pooch.create(
-        path=config["data_dir"] / dataset,
+        path=data_dir,
         base_url="",
         urls=DATA_URLS[dataset],
         registry=DATA_REGISTRY[dataset],
