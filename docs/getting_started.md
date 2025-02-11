@@ -5,7 +5,6 @@ The Laboratory for Neural Statistics, or "NeuroStatsLab" for short, seeks to bri
 :maxdepth: 2
 :caption: Getting Started:
 
+Using Pynacollada <getting_started/using_pynacollada>
 Background <getting_started/background>
-Computing Resources <getting_started/computing_resources>
-Administrative Info <getting_started/administrative_info>
 ```

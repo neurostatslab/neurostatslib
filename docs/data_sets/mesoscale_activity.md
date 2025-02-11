@@ -4,102 +4,12 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.4
+    jupytext_version: 1.16.6
 kernelspec:
-  display_name: Python 3 (ipykernel)
+  display_name: test
   language: python
   name: python3
 ---
-
-
-
-# Installation
-
-
-## Setting up your python virtual environment on the cluster
-
-### 1. Connect to rusty
-If you're on the FI network,
-```bash
-ssh rusty
-```
-If you're on the guest network or offsite, follow the instructions found here: https://wiki.flatironinstitute.org/SCC/RemoteConnect. In short, you need to first connect to the FI gateway, which requires Google Authenticator for your cluster account.
-
-Connecting to rusty will land you on the **login node**. We can proceed with step 2 (creating our virtual environment) on this node, but this node should **not** be used for anything computationally intense.
-
-### 2. Use modules and set up a virtual environment
-The FI cluster has a bunch of useful software already installed as **modules**. I would recommend using modules in tandem with python's `venv` to quickly set up the virtual environment. 
-
-First, we'll want to load in a python module. We can load in the default version of python using:
-```bash
-module load python
-```
-At the time of writing, this will load python 3.10.13. If you want to load a specific version of python, you can search available modules using `module spider`.
-```bash
-module spider python
-
-```
-This will return a list of python modules (and some other info):
-```
-----------------------------------------------------------------------------
-  python:
-----------------------------------------------------------------------------
-     Versions:
-        python/3.8.12
-        python/3.8.15
-        python/3.8.16
-        python/3.9.12
-        python/3.9.15
-        python/3.9.16
-        python/3.9.18
-        python/3.10.4
-        python/3.10.8
-        python/3.10.10
-        python/3.10.13
-        python/3.11.2
-        python/3.11.7
-
-```
-We can load in a specific version of python as:
-```bash
-module load python/3.11.7
-```
-Everything that follows assumes and has been tested with the default version (3.10.13), but ideally should also work with newer versions. 
-
-> **Q: do we want to load in cuda for gpu support? need to check how gpus are handled with online jupyter scheduler**
-
-+++
-
-<div class="alert alert-block alert-info">
-<b>Warning:</b> conda
-</div>
-
-dependencies:
-- pynapple
-- pynwb
-- dandi
-- nemos
-
-modules to load probably:
-- cuda
-
-Probably default to installation on the cluster and accessing notebook through JupyterHub (https://wiki.flatironinstitute.org/SCC/JupyterHub). Outline (to be made more specific)
-- recommendation to create virtual environment using system packages to avoid installing things that already exist
-
-```
-module load python 
-VENVDIR=/path/to/wherever/you/want/to/store/your/venvs
-python -m venv --system-site-packages $VENVDIR/name-of-your-venv
-source $VENVDIR/name-of-your-venv/bin/activate
-```
-- Install above additional packages via pip
-- Create jupyter kernel
-```
-module load jupyter-kernels
-python -m make-custom-kernel mykernel
-```
-
-+++
 
 # Introduction
 Paper: https://www.sciencedirect.com/science/article/pii/S0092867423014459
@@ -138,7 +48,10 @@ Paper: https://www.sciencedirect.com/science/article/pii/S0092867423014459
 - **Video tracking**: 300Hz recording from two cameras to capture animal movements
     - offline tracking of tongue, jaw, and nose using DeepLabCut
 
-+++
+```{code-cell} ipython3
+import pynacollada as nac
+import pynapple as nap
+```
 
 # The data
 
@@ -159,21 +72,9 @@ instructions outside of notebook?
 NWB file:
 
 ```{code-cell} ipython3
-import os
-import pynwb as nwb
-import pynapple as nap
-import pandas as pd
-
-fpath = "/mnt/home/neurostatslab/ceph/000363/sub-441666"
-fname = "sub-441666_ses-20190513T144253_behavior+ecephys+ogen.nwb"
-
-# # os.path.join(fpath,fname)
-# io = nwb.NWBHDF5IO(os.path.join(fpath,fname))
-# nwbfile = io.read()
-```
-
-```{code-cell} ipython3
-nwbfile
+nac.config["data_dir"] = "../data"
+data = nac.load_data("mesoscale_activity")
+data
 ```
 
 # Pynapple

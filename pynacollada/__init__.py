@@ -1,3 +1,4 @@
 from .settings import config
-from .registry import fetch_data, load_data
-from .io import load_nwb, load_mat
+from .io import fetch_data, load_data
+from .loaders import load_nwb, load_mat
+from .plotting import animate_1d_convolution

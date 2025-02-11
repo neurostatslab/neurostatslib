@@ -118,12 +118,15 @@ classifiers = [
 dependencies = [
   "jupyter",
   "ipython",
-  "dandi",
-  "pooch",
-  "mat73",
+  "numpy",
+  "scipy",
+  "pandas",
   "matplotlib",
   "seaborn",
   "scikit-learn",
+  "dandi",
+  "pooch",
+  "mat73",
   "pynapple @ git+https://github.com/pynapple-org/pynapple.git@dev",
   "nemos @ git+https://github.com/flatironinstitute/nemos.git@development",
 ]
@@ -142,6 +145,7 @@ docs = [
   "sphinx>=8.0.0",
   "sphinx-autobuild",
   "sphinx-design",
+  "sphinx-copybutton",
   "myst-nb",
   "jupytext",
   "pydata-sphinx-theme"]

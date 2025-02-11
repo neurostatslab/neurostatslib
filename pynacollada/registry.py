@@ -1,16 +1,5 @@
-import os, shutil, glob
-import pooch
-from pooch import Pooch
-import dandi
-import fsspec
-import h5py
-from dandi.dandiapi import DandiAPIClient
-from fsspec.implementations.cached import CachingFileSystem
-from pynwb import NWBHDF5IO
-from pynacollada.settings import config
-from pathlib import Path
-from .io import dandi_downloader, load_nwb, load_mat
 from functools import partial
+from .loaders import dandi_downloader, load_nwb, load_mat, nap_load
 
 DATA_REGISTRY = {
     "mesoscale_activity": {
@@ -22,9 +11,10 @@ DATA_REGISTRY = {
         "stim_info.mat": "a7880cd0a0321d72c82f0639078aa017b9249a2bd90320c19182cd0ee34de890",
         "stim_matrix.mat": "910f4ac5a5a8b2ffd6ed165a9cd50260663500cd17ed69a547bca1f1ae3290fb",
     },
+    "place_cells": {
+        "Achilles_10252013_EEG.nwb": "a97a69d231e7e91c07e24890225f8fe4636bac054de50345551f32fc46b9efdd",
+    },
 }
-
-"https://api.dandiarchive.org/api/assets/d524f0d4-6f5c-4d74-8f99-094e360579c5/download/"
 
 DATA_URLS = {
     "mesoscale_activity": {
@@ -36,81 +26,19 @@ DATA_URLS = {
         "stim_info.mat": "https://osf.io/gwtcs/download",
         "stim_matrix.mat": "https://osf.io/bh6mu/download",
     },
+    "place_cells": {
+        "Achilles_10252013_EEG.nwb": "https://osf.io/2dfvp/download",
+    },
 }
-
 
 DATA_DOWNLOADER = {
     "mesoscale_activity": dandi_downloader,
     "perceptual_straightening": None,
+    "place_cells": None,
 }
 
 DATA_LOADER = {
     "mesoscale_activity": load_nwb,
     "perceptual_straightening": partial(load_mat, file_name="perceptual_straightening"),
+    "place_cells": nap_load,
 }
-
-# dataset = "mesoscale_activity"
-
-
-def fetch_data(dataset, stream_data=False):
-    """
-    Fetches tutorial data from disk, or downloads it if it doesn't exist.
-
-    Parameters
-    ----------
-    dataset : str
-        Name of the tutorial whose data should be fetched.
-    stream_data : bool
-        Whether to stream the data instead of downloading directly. Only works for DANDI datasets. Defaults to False.
-
-    Returns
-    -------
-
-
-    """
-
-    if dataset in config["unique_data_dir"].keys():
-        data_dir = config["unique_data_dir"][dataset]
-    else:
-        data_dir = config["data_dir"] / dataset
-
-    manager = pooch.create(
-        path=data_dir,
-        base_url="",
-        urls=DATA_URLS[dataset],
-        registry=DATA_REGISTRY[dataset],
-        retry_if_failed=2,
-        allow_updates="POOCH_ALLOW_UPDATES",
-    )
-
-    files = []
-    for key in DATA_URLS[dataset]:
-        files.append(
-            manager.fetch(
-                key,
-                progressbar=True,
-                downloader=DATA_DOWNLOADER[dataset],
-            )
-        )
-
-    return files
-
-
-def load_data(dataset, stream_data=False):
-    """
-    Load tutorial data from disk, or download it if it doesn't exist.
-
-    Parameters
-    ----------
-    dataset : str
-        Name of the tutorial whose data should be fetched.
-    stream_data : bool
-        Whether to stream the data instead of downloading directly. Only works for DANDI datasets. Defaults to False.
-
-    Returns
-    -------
-
-
-    """
-    files = fetch_data(dataset, stream_data)
-    return DATA_LOADER[dataset](files)
