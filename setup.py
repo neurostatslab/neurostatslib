@@ -25,6 +25,7 @@ requirements = [
     "mat73",
     "ipython",
     "jupyter",
+    "jupytext",
 ]
 
 setup(

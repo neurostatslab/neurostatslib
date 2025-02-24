@@ -117,6 +117,7 @@ classifiers = [
 # https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [
   "jupyter",
+  "jupytext",
   "ipython",
   "numpy",
   "scipy",
@@ -148,7 +149,6 @@ docs = [
   "sphinx-copybutton",
   "sphinx-togglebutton",
   "myst-nb",
-  "jupytext",
   "pydata-sphinx-theme",
 ]
 dev = [

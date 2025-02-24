@@ -5,9 +5,11 @@ BUILDDIR      = notebooks
 
 # Put it first so that "make" without argument is like "make help".
 help:
-	@echo "Usage: make <notebook_name>"
+	@echo "Usage: make <notebook_name>" 
+	@echo "       make all"
 	@echo ""
 	@echo "Creates <notebook_name>.ipynb in 'notebooks' folder from <notebook_name>.md in 'docs/data_sets' folder"
+	@echo "Using 'make all' creates all available notebooks"
 	@echo ""
 	@echo "Available notebooks:"
 	@ls $(SOURCEDIR) | sed 's/\.md//g' | sed 's/^/    /'

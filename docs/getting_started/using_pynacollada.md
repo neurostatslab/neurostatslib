@@ -21,13 +21,31 @@ Pynacollada is an open-source software package to provide detailed and accessibl
 Clone the repository
 
 ```shell
-git clone url
+git clone https://github.com/neurostatslab/pynacollada.git
 ```
 
 Navigate to the repository and install
 
 ```shell
 pip install .
+```
+
+Build all Jupyter notebooks
+
+```shell
+make all
+```
+
+Check available Jupyter notebooks to build
+
+```shell
+make help
+```
+
+Build specific Jupyter notebook (e.g. "place_cells")
+
+```shell
+make place_cells
 ```
 
 ### Detailed instructions
