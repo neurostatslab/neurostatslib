@@ -1,12 +1,13 @@
-# nsl-tutorials
+# Pynacollada
 Repository containing instructions and example notebooks to orient lab members with different datasets and common analysis pipelines
 
-The ultimate goal is to provide these tutorials in a publically-available, installable package that utilyzes pynapple, nemos, and other relevant analysis packages. The proposed name for this package is **pynacollada**: **PY**thon **N**eural **A**nalysis **COLLA**borative **DA**tasets.
+The ultimate goal is to provide these tutorials in a publically-available, installable package that utilyzes pynapple, nemos, and other relevant analysis packages. The proposed name for this package is **pynacollada**: **PY**thon **N**eural **A**nalysis **COLLA**borative **DA**tasets, a spiritual successor to https://github.com/PeyracheLab/pynacollada
 
 ## Contents
 * [Installation on cluster](#installation-on-cluster)
   * [Download repository](#download-repository)
   * [Set up python virtual environment on cluster](#set-up-python-virtual-environment-on-cluster)
+  * [Build tutorial Jupyter notebooks](#build-tutorial-jupyter-notebooks)
   * [Run Jupyter notebooks on the cluster](#run-jupyter-notebooks-on-the-cluster)
 * [Deploying the docs](#deploying-the-docs)
   
@@ -23,53 +24,13 @@ ssh rusty
 ```
 This will bring you to a login node in your home folder.
 
-#### Generate ssh key 
-Since this is a private repository, we need to set up access in order to clone it. To do so, generate a new ssh key pair, replacing "user@example.com" with your github email address:
-```bash
-ssh-keygen -t ed25519 -C “user@example.com”
-```
-which will return the text
-```
-Generating public/private ed25519 key pair.
-Enter file in which to save the key (/mnt/home/user/.ssh/id_ed25519):
-```
-Press enter to accept the save location, after which it will prompt for a passphrase, which you will need to enter twice.
-```
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again:
-```
-It will then print out a string of random characters and a randomart image. You should now have two new files which can be listed with the command `ls ~/.ssh`:
-```
-id_ed25519  id_ed25519.pub
-```
-The first file, `id_ed25519`, is your private key which should be kept confidential. The second file, `id_ed25519.pub`, is your public key which we will save in GitHub. Print this key to the terminal with
-```
-cat ~/.ssh/id_ed25519.pub
-```
-This key will have the form:
-```
-ssh-ed25519 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx user@example.com
-```
-Copy this full output from your terminal for the next step.
-
-#### Save public key in github
-From the GitHub home page, navigate to your user settings by clicking on the top right icon
-<img src="screenshots/sshkey-1.png"></img>
-and selecting "settings" in the right sidebar.
-<img src="screenshots/sshkey-2.png"></img>
-From there, select "SSH and GPG keys" in the left sidebar and click the "New SSH key" in the upper right.
-<img src="screenshots/sshkey-3.png"></img>
-You'll navigate to a form where you need to give your new SSH key a name, such as "rusty-key", and paste the public key from the previous step in the "Key" box.
-<img src="screenshots/sshkey-4.png"></img>
-Click "Add SSH key" to add this key to your account.
-
 #### Clone repository to cluster
 In your home folder on rusty, you can now clone the "nsl-tutorials" repository. Use the following commands to load the git module and clone the repository.
 ```bash
 module load git
-git clone git@github.com:neurostatslab/nsl-tutorials.git
+git clone https://github.com/neurostatslab/pynacollada.git
 ```
-This will download the repository into a new directory `nsl-tutorials`.
+This will download the repository into a new directory `pynacollada`.
 
 ### Set up python virtual environment on cluster
 We'll want to set up a new python virtual environment and set it as a jupyter kernel in order to access the tutorial notebooks. First, load the python module:
@@ -99,6 +60,14 @@ Finally, we need to set this virtual environment as a jupyter kernel in order to
 module load jupyter-kernels
 python -m make-custom-kernel nsl-data
 ```
+
+### Build tutorial Jupyter notebooks
+The source data for each tutorial is saved as as a markdown file for the docs. A Makefile has been provided to convert these markdown files into Jupyter notebooks that can be ran locally. To create all available notebooks, in a terminal in the base "pynacollada" repository with your virtual environment active, run the command:
+```
+make all
+```
+For more information on this Makefile, run `make help`
+
 ### Run Jupyter notebooks on the cluster
 The easiest way to run Jupyter notebooks on cluster resources is to use Flatiron's JupyterHub environment found at: https://jupyter.flatironinstitute.org/. 
 
