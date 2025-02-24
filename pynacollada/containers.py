@@ -2,7 +2,7 @@ from hdmf.container import Container
 import numpy as np
 
 
-class MatData(Container):
+class MatArray(Container):
     """
     HDMF container extended to display properties of array-like data.
 
@@ -35,6 +35,13 @@ class MatData(Container):
         # endians don't print for some reason
         self.dtype = str(values.dtype).replace("<", "").replace(">", "")
         self.values = values
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    @property
+    def data(self):
+        return self.values
 
 
 class MatField(Container):
@@ -89,7 +96,7 @@ def mat_container(struct, name="root"):
         elif isinstance(d, (np.ndarray, list)):
             d = np.array(d)
             if len(d.shape):
-                return MatData(k, np.array(d))
+                return MatArray(k, np.array(d))
             elif np.issubdtype(d.dtype, np.number):
                 return MatField(k, float(d))
             else:

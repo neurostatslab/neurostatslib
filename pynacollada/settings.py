@@ -8,7 +8,7 @@ from .registry import DATA_LOADER
 
 DATA_SETS = DATA_LOADER.keys()
 
-LOCAL_CONFIG = "nsl_tutorials_conf.json"
+LOCAL_CONFIG = "pynacollada_conf.json"
 
 DEFAULT_DIR = str(pooch.os_cache("pynacollada"))
 defaults = dict(
@@ -112,6 +112,18 @@ class Config(MutableMapping):
                 cls._instance.update(conf)
 
         return cls._instance
+
+    # def __init__(self, conf_file=LOCAL_CONFIG, defaults=defaults):
+    #     super().__init__()
+    #     self.update(defaults)
+
+    #     if os.path.exists(conf_file):
+    #         import json
+
+    #         with open(conf_file, "r") as f:
+    #             conf = json.load(f)
+
+    #         self.update(conf)
 
     @_validate_conf
     def __setitem__(self, key, value):

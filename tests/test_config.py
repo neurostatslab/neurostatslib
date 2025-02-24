@@ -28,6 +28,13 @@ def test_config_reset():
     assert "user" not in nac.config.keys()
 
 
+def test_config_instance():
+    nac.config.reset()
+    nac.config["data_dir"] = "/path/to/data"
+    assert nac.settings.Config() == nac.config
+    assert id(nac.settings.Config()) == id(nac.config)
+
+
 @pytest.fixture
 def clear_config():
     nac.config.reset()

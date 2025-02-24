@@ -17,10 +17,12 @@ extensions = [
     "sphinx_design",
     "myst_nb",
     "sphinx_copybutton",
+    "sphinx_togglebutton",
 ]
 
 myst_enable_extensions = [
     "colon_fence",
+    "dollarmath",
 ]
 
 templates_path = ["_templates"]

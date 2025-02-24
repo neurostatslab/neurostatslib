@@ -146,9 +146,16 @@ docs = [
   "sphinx-autobuild",
   "sphinx-design",
   "sphinx-copybutton",
+  "sphinx-togglebutton",
   "myst-nb",
   "jupytext",
-  "pydata-sphinx-theme"]
+  "pydata-sphinx-theme",
+]
+dev = [
+  "pytest",
+  "black",
+  "isort",
+]
 
 # List URLs that are relevant to your project
 #
