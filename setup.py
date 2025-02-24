@@ -52,13 +52,13 @@ setup(
     long_description=readme,
     include_package_data=True,
     keywords=["neuroscience", "statistics"],
-    name="nsl-tutorials",
+    name="pynacollada",
     packages=find_namespace_packages(
-        include=["nsl-tutorials"],
+        include=["pynacollada"],
     ),
-    url="https://github.com/neurostatslab/nsl-tutorials",
+    url="https://github.com/neurostatslab/pynacollada",
     version="v0.0.1",
     zip_safe=False,
     long_description_content_type="text/markdown",
-    download_url="https://github.com/neurostatslab/nsl-tutorials/archive/refs/heads/main.zip",
+    download_url="https://github.com/neurostatslab/pynacollada/archive/refs/heads/main.zip",
 )
