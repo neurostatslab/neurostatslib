@@ -7,8 +7,6 @@ set BUILDDIR=notebooks
 
 if "%1" == "" goto help
 
-if "%1" == "all" goto all
-
 jupytext %SOURCEDIR%\%1.md --to notebook --output %BUILDDIR%\%1.ipynb
 goto end
 

@@ -1,4 +1,4 @@
-import pynacollada as nac
+import neurostatslib as nac
 from pathlib import Path
 import copy
 import pytest

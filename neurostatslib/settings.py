@@ -4,17 +4,23 @@ import pooch
 from functools import wraps
 from os import PathLike
 from collections.abc import MutableMapping
-from .registry import DATA_LOADER
+from .registry import DATA_REGISTRY
 
-DATA_SETS = DATA_LOADER.keys()
+DATA_SETS = DATA_REGISTRY.keys()
 
-LOCAL_CONFIG = "pynacollada_conf.json"
+LOCAL_CONFIG = "neurostatslib_conf.json"
 
-DEFAULT_DIR = str(pooch.os_cache("pynacollada"))
-defaults = dict(
+DEFAULT_DATA_DIR = str(pooch.os_cache("neurostatslib"))
+DEFAULT_NOTEBOOK_DIR = os.getcwd()
+DEFAULTS = dict(
     {
-        "data_dir": DEFAULT_DIR,
-        "unique_data_dir": {},
+        # where to download the data
+        "data_dir": DEFAULT_DATA_DIR,
+        # where to download the notebooks
+        # this is anticipated for when the package is released on pip and not installed through the repository
+        "notebook_dir": DEFAULT_NOTEBOOK_DIR,
+        # which branch to download the notebooks from
+        "notebook_source": "main",
     }
 )
 
@@ -57,16 +63,20 @@ def _validate_conf(func):
 
 class Config(MutableMapping):
     """
-    Configuration settings for pynacollada package. Can be updated and saved to a local configuration file, 'nsl_tutorials_conf.json', in the current working directory.
+    Configuration settings for neurostatslib package. Can be updated and saved to a local configuration file,
+    'neurostatslib_conf.json', in the current working directory.
 
-    If a local configuration file is found in the current working directory, it will be loaded automatically when the package is imported.
+    If a local configuration file is found in the current working directory, it will be loaded automatically when the
+    package is imported.
 
-    Global configuration files are not supported. Use the 'load' method to load a configuration file from a different location or filename.
+    Global configuration files are not supported. Use the 'load' method to load a configuration file from a different
+    location or filename.
 
     Attributes
     ----------
     data_dir : str
-        Path to data directory. Defaults to subdirectory 'data' if it exists in the current working directory, otherwise defaults to the current working directory.
+        Path to data directory. Defaults to subdirectory 'data' if it exists in the current working directory,
+        otherwise defaults to the current working directory.
 
     Examples
     --------
@@ -98,7 +108,7 @@ class Config(MutableMapping):
     _instance = None
 
     # override __new__ to enforce a single instance of Config
-    def __new__(cls, conf_file=LOCAL_CONFIG, defaults=defaults):
+    def __new__(cls, conf_file=LOCAL_CONFIG, defaults=DEFAULTS):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.update(defaults)
@@ -189,7 +199,7 @@ class Config(MutableMapping):
         Reset configuration settings to defaults.
         """
         del self.__dict__
-        self.update(defaults)
+        self.update(DEFAULTS)
 
 
 config = Config()

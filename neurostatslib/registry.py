@@ -1,11 +1,14 @@
 from functools import partial
 from .loaders import dandi_downloader, load_nwb, load_mat, nap_load
 
+
 DATA_REGISTRY = {
     "mesoscale_activity": {
         "sub-480928_ses-20210129T132207_behavior+ecephys+ogen.nwb": "3526a812f126fe09205c4ef5592974cce78bab5625f3eacf680165e35d56b443",
         # "sub-484672_ses-20210321T131204_behavior+ecephys+ogen.nwb": "e5017930d129797d51fc1cfa3f434d51f54988f1f726f8ed121138b56f2291b3", # smaller file for testing
     },
+    # "ibl_data": {
+    # },
     "perceptual_straightening": {
         "ay5_u002_image_sequences.mat": "c1b8a03e624a1e79b6c8c77fb3f9d83cd6fc9ee364f5ed334883bbc81c38ca0f",
         "stim_info.mat": "a7880cd0a0321d72c82f0639078aa017b9249a2bd90320c19182cd0ee34de890",
@@ -21,6 +24,9 @@ DATA_URLS = {
         "sub-480928_ses-20210129T132207_behavior+ecephys+ogen.nwb": "https://api.dandiarchive.org/api/assets/3d142f75-f3c0-4106-9533-710d26f12b02/download/",
         # "sub-484672_ses-20210321T131204_behavior+ecephys+ogen.nwb": "https://api.dandiarchive.org/api/assets/ad207ee4-8f59-47f3-9201-005d933b7ac1/download/"
     },
+    # {
+    #     "ibl_data":
+    # },
     "perceptual_straightening": {
         "ay5_u002_image_sequences.mat": "https://osf.io/9kbnw/download",
         "stim_info.mat": "https://osf.io/gwtcs/download",
@@ -31,14 +37,17 @@ DATA_URLS = {
     },
 }
 
+
 DATA_DOWNLOADER = {
     "mesoscale_activity": dandi_downloader,
+    # "ibl_data": dandi_downloader,
     "perceptual_straightening": None,
     "place_cells": None,
 }
 
 DATA_LOADER = {
     "mesoscale_activity": load_nwb,
+    # "ibl_data": load_nwb,
     "perceptual_straightening": partial(load_mat, file_name="perceptual_straightening"),
     "place_cells": nap_load,
 }

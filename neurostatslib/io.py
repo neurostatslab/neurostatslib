@@ -1,8 +1,17 @@
-from pathlib import Path
-import pooch
 from .registry import DATA_REGISTRY, DATA_URLS, DATA_DOWNLOADER, DATA_LOADER
-
 from .settings import config
+import pooch
+from .utils import flatten
+
+
+MANAGER = pooch.create(
+    path=config["data_dir"],
+    base_url="",
+    registry=dict(flatten(DATA_REGISTRY)),
+    urls=dict(flatten(DATA_URLS)),
+    retry_if_failed=2,
+    allow_updates="POOCH_ALLOW_UPDATES",
+)
 
 
 def fetch_data(dataset, stream_data=False):
@@ -22,24 +31,11 @@ def fetch_data(dataset, stream_data=False):
 
     """
 
-    if dataset in config["unique_data_dir"].keys():
-        data_dir = config["unique_data_dir"][dataset]
-    else:
-        data_dir = Path(config["data_dir"]) / dataset
-
-    manager = pooch.create(
-        path=data_dir,
-        base_url="",
-        urls=DATA_URLS[dataset],
-        registry=DATA_REGISTRY[dataset],
-        retry_if_failed=2,
-        allow_updates="POOCH_ALLOW_UPDATES",
-    )
-
+    project = {dataset + "/" + k: v for k, v in DATA_URLS[dataset].items()}
     files = []
-    for key in DATA_URLS[dataset]:
+    for key in project.keys():
         files.append(
-            manager.fetch(
+            MANAGER.fetch(
                 key,
                 progressbar=True,
                 downloader=DATA_DOWNLOADER[dataset],
