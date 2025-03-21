@@ -47,12 +47,14 @@ def _validate_conf(func):
                     raise TypeError("notebook_dir must be a string or PathLike object")
 
             case "notebook_source":
-                warnings.warn(
-                    "Changing the notebook_source will result in downloading different versions of the notebooks. "
-                    "Ensure that the source branch exists before changing this setting."
-                )
                 if not isinstance(value, str):
                     raise TypeError("notebook_source must be a string")
+
+                if value != "main":
+                    warnings.warn(
+                        "Changing the notebook_source will result in downloading different versions of the notebooks. "
+                        "Ensure that the source branch exists before changing this setting."
+                    )
 
         return func(self, key, value)
 

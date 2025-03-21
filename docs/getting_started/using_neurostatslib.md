@@ -11,9 +11,9 @@ kernelspec:
   name: python3
 ---
 
-# Using Pynacollada
+# Using neurostatslib
 
-Pynacollada is an open-source software package to provide detailed and accessible tutorials using curated data sets in Neuroscience. 
+Neurostatslib is an open-source software package to provide detailed and accessible tutorials using curated data sets in Neuroscience. 
 
 ## Installation
 
@@ -21,7 +21,7 @@ Pynacollada is an open-source software package to provide detailed and accessibl
 Clone the repository
 
 ```shell
-git clone https://github.com/neurostatslab/pynacollada.git
+git clone https://github.com/neurostatslab/neurostatslib.git
 ```
 
 Navigate to the repository and install

@@ -12,7 +12,7 @@ Follow the link below to get started.
 :color: success
 :class: sd-fs-4, sd-rounded-pill, sd-shadow-md
 
-New lab members start here!
+New users start here!
 ```
 :::
 ::::
