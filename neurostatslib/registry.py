@@ -51,3 +51,8 @@ DATA_LOADER = {
     "perceptual_straightening": partial(load_mat, file_name="perceptual_straightening"),
     "place_cells": nap_load,
 }
+
+
+NOTEBOOK_REGISTRY = {
+    "place_cells.md": "69fcaf2fe0faf3b9ee46209b89261713191e782c2784bc2960cf98ee21e7f34d",
+}

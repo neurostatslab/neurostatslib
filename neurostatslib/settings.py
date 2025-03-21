@@ -4,14 +4,15 @@ import pooch
 from functools import wraps
 from os import PathLike
 from collections.abc import MutableMapping
-from .registry import DATA_REGISTRY
+from .registry import DATA_REGISTRY, DATA_URLS, NOTEBOOK_REGISTRY
+from .utils import flatten
 
 DATA_SETS = DATA_REGISTRY.keys()
 
 LOCAL_CONFIG = "neurostatslib_conf.json"
 
 DEFAULT_DATA_DIR = str(pooch.os_cache("neurostatslib"))
-DEFAULT_NOTEBOOK_DIR = os.getcwd()
+DEFAULT_NOTEBOOK_DIR = os.getcwd() + "/notebooks"
 DEFAULTS = dict(
     {
         # where to download the data
@@ -38,23 +39,12 @@ def _validate_conf(func):
                 if not isinstance(value, str):
                     raise TypeError("data_dir must be a string or PathLike object")
 
-            case "unique_data_dir":
-                if not isinstance(value, dict):
-                    raise TypeError(
-                        "unique_data_dir must be a dictionary with dataset names as keys and paths as values"
-                    )
-                for k, v in value.items():
-                    if k not in DATA_SETS:
-                        raise ValueError(
-                            f"Invalid dataset name: {k}. Must be one of {DATA_SETS}"
-                        )
-                    if isinstance(v, PathLike):
-                        # convert path to string for serialization
-                        value[k] = str(v)
-                    if not isinstance(value[k], str):
-                        raise TypeError(
-                            "unique_data_dir values must be strings or PathLike objects"
-                        )
+            case "notebook_dir":
+                if isinstance(value, PathLike):
+                    # convert path to string for serialization
+                    value = str(value)
+                if not isinstance(value, str):
+                    raise TypeError("notebook_dir must be a string or PathLike object")
 
         return func(self, key, value)
 
