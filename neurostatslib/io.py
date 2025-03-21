@@ -32,7 +32,7 @@ def notebook_manager():
     """
     return pooch.create(
         path=config["data_dir"] + "/notebooks",
-        base_url=f"https://raw.github.com/neurostatslab/neurostatslib/{config["notebook_source"]}/docs/data_sets/",
+        base_url=f"https://raw.github.com/neurostatslab/neurostatslib/{config['notebook_source']}/docs/data_sets/",
         registry=NOTEBOOK_REGISTRY,
         retry_if_failed=2,
         allow_updates="POOCH_ALLOW_UPDATES",
