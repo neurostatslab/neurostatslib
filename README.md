@@ -1,36 +1,28 @@
-# Pynacollada
+# neurostatslib
 Repository containing instructions and example notebooks to orient lab members with different datasets and common analysis pipelines
 
-The ultimate goal is to provide these tutorials in a publically-available, installable package that utilyzes pynapple, nemos, and other relevant analysis packages. The proposed name for this package is **pynacollada**: **PY**thon **N**eural **A**nalysis **COLLA**borative **DA**tasets, a spiritual successor to https://github.com/PeyracheLab/pynacollada
+The ultimate goal is to provide these tutorials in a publically-available, installable package that utilyzes pynapple, nemos, and other relevant analysis packages.
 
 ## Contents
-* [Installation on cluster](#installation-on-cluster)
-  * [Download repository](#download-repository)
+* [Installation](#installation)
+  * [Connect to the Flatiron network](#connect-to-the-flatiron-network)
+  * [Clone the repository](#clone-the-repository)
   * [Set up python virtual environment on cluster](#set-up-python-virtual-environment-on-cluster)
   * [Build tutorial Jupyter notebooks](#build-tutorial-jupyter-notebooks)
   * [Run Jupyter notebooks on the cluster](#run-jupyter-notebooks-on-the-cluster)
 * [Deploying the docs](#deploying-the-docs)
   
-## Installation on cluster
-### Download repository
-#### Connect to rusty
-If you're on the guest network or offsite, you need to first connect to flatiron gateway before connecting to rusty. Enter the following command in your terminal,
-```bash
-ssh -p 61022 user@gateway.flatironinstitute.org
-```
-which will prompt for googe authenticator code and cluster password. Once you're connected, or if you're on the FI network, you can connect to rusty with the command:
-```bash
-ssh rusty
-```
-This will bring you to a login node in your home folder.
+## Installation
+### Connect to the Flatiron network
+If you want to download and install the repository on the Flatiron cluster, follow the instructions found here for remote connections or connecting from a guest account: https://wiki.flatironinstitute.org/SCC/RemoteConnect
 
-#### Clone repository to cluster
-In your home folder on rusty, you can now clone the "nsl-tutorials" repository. Use the following commands to load the git module and clone the repository.
+### Clone the repository
+In a folder of your choosing, clone the neurostatslib repository using the following command:
 ```bash
 module load git
-git clone https://github.com/neurostatslab/pynacollada.git
+git clone https://github.com/neurostatslab/neurostatslib.git
 ```
-This will download the repository into a new directory `pynacollada`.
+This will download the repository into a new directory `neurostatslib`.
 
 ### Set up python virtual environment on cluster
 We'll want to set up a new python virtual environment and set it as a jupyter kernel in order to access the tutorial notebooks. First, load the python module:
@@ -41,7 +33,7 @@ which will load the default python version (3.10.13 at the time of writing). The
 ```bash
 python -m venv --system-site-packages venvs/nsl-data
 ```
-which will create the environment in a subdirectory `venvs` in your home directory. You can change this location if you want to use a different location, or if you have an existing location where you keep your virtual environments. The `--system-site-packages` flag will include default packages already installed on the cluster, such as numpy and scipy, which will save storage space over having a separate install of each of these packages. 
+which will create the environment in a subdirectory `venvs` in your current directory. You can change this location if you want to use a different location, or if you have an existing location where you keep your virtual environments. The `--system-site-packages` flag will include default packages already installed on the cluster, such as numpy and scipy, which will save storage space over having a separate install of each of these packages. 
 
 Activate the environment you just created with the command
 ```bash
@@ -49,7 +41,7 @@ source venvs/nsl-data/bin/activate
 ```
 after which, you should see the text `(nsl-data)` prepended to the current line in your terminal. Now you can safely install the remaining dependencies.
 
-The nsl-tutorials repository has been set up to be locally pip-installable for easy installation of the remaining dependencies. Navigate to the cloned repository with `cd nsl-tutorials`. Once inside the folder, install the nsl-tutorials "package" with the following command:
+The nsl-tutorials repository has been set up to be locally pip-installable for easy installation of the remaining dependencies. Navigate to the cloned repository with `cd neurostatslib`. Once inside the folder, install the nsl-tutorials "package" with the following command:
 ```bash
 pip install -e .
 ```
@@ -62,7 +54,7 @@ python -m make-custom-kernel nsl-data
 ```
 
 ### Build tutorial Jupyter notebooks
-The source data for each tutorial is saved as as a markdown file for the docs. A Makefile has been provided to convert these markdown files into Jupyter notebooks that can be ran locally. To create all available notebooks, in a terminal in the base "pynacollada" repository with your virtual environment active, run the command:
+The source data for each tutorial is saved as as a markdown file for the docs. A Makefile has been provided to convert these markdown files into Jupyter notebooks that can be ran locally. To create all available notebooks, in a terminal in the base "neurostatslib" repository with your virtual environment active, run the command:
 ```
 make all
 ```

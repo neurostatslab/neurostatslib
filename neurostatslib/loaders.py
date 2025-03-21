@@ -47,7 +47,8 @@ def dandi_downloader(url, output_file, pooch):
 
 def load_nwb(file_path):
     """
-    Wrapper for loading a NWB file, using either a string input with the file path, or a length-1 list of a string with the file path.
+    Wrapper for loading a NWB file, using either a string input with the file path, or a length-1 list of a string with
+    the file path.
     """
 
     if isinstance(file_path, list):
@@ -70,7 +71,8 @@ def nap_load(file_path):
 
 def load_mat(file_path, file_name="root"):
     """
-    Load in a .mat file or files and returns an extended HDMF container with the data. The HDMF container allows for easy visualization of the data and its structure in a Jupyter notebook.
+    Load in a .mat file or files and returns an extended HDMF container with the data. The HDMF container allows for
+    easy visualization of the data and its structure in a Jupyter notebook.
     """
     if isinstance(file_path, str):
         file_path = [file_path]
