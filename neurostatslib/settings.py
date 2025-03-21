@@ -6,10 +6,11 @@ from os import PathLike
 from collections.abc import MutableMapping
 from .registry import DATA_REGISTRY
 import warnings
+from pathlib import Path
 
 DATA_SETS = DATA_REGISTRY.keys()
 
-LOCAL_CONFIG = "neurostatslib_conf.json"
+LOCAL_CONFIG = os.path.abspath("neurostatslib_conf.json")
 
 DEFAULT_DATA_DIR = str(pooch.os_cache("neurostatslib"))
 DEFAULT_NOTEBOOK_DIR = os.getcwd() + "/notebooks"
@@ -38,14 +39,16 @@ def _validate_conf(func):
                     value = str(value)
                 if not isinstance(value, str):
                     raise TypeError("data_dir must be a string or PathLike object")
-
+                # ensure path is absolute
+                value = os.path.abspath(value)
             case "notebook_dir":
                 if isinstance(value, PathLike):
                     # convert path to string for serialization
                     value = str(value)
                 if not isinstance(value, str):
                     raise TypeError("notebook_dir must be a string or PathLike object")
-
+                # ensure path is absolute
+                value = os.path.abspath(value)
             case "notebook_source":
                 if not isinstance(value, str):
                     raise TypeError("notebook_source must be a string")
@@ -66,8 +69,8 @@ class Config(MutableMapping):
     Configuration settings for neurostatslib package. Can be updated and saved to a local configuration file,
     'neurostatslib_conf.json', in the current working directory.
 
-    If a local configuration file is found in the current working directory, it will be loaded automatically when the
-    package is imported.
+    If a local configuration file is found in the current working directory or one level above the current working
+    directory, it will be loaded automatically when the package is imported.
 
     Global configuration files are not supported. Use the 'load' method to load a configuration file from a different
     location or filename.
@@ -113,13 +116,10 @@ class Config(MutableMapping):
             cls._instance = super().__new__(cls)
             cls._instance.update(defaults)
 
-            if os.path.exists(conf_file):
-                import json
-
-                with open(conf_file, "r") as f:
-                    conf = json.load(f)
-
-                cls._instance.update(conf)
+            with warnings.catch_warnings():
+                # suppress warnings from loading the configuration file
+                warnings.simplefilter("ignore")
+                cls._instance.load(conf_file)
 
         return cls._instance
 
@@ -129,6 +129,9 @@ class Config(MutableMapping):
 
     def __getitem__(self, key):
         return self.__dict__[key]
+
+    def __setattr__(self, name, value):
+        return self.__setitem__(name, value)
 
     def __delitem__(self, key):
         del self.__dict__[key]
@@ -179,8 +182,18 @@ class Config(MutableMapping):
         >>> import neurostatslib as nsl
         >>> nsl.config.load("/path/to/config.json")
         """
-        with open(conf_file, "r") as f:
-            self.update(json.load(f))
+        # also check for a config file one level up from the current directory
+        parent_conf = Path.cwd().parent / Path(conf_file).name
+        if os.path.exists(conf_file):
+            with open(conf_file, "r") as f:
+                self.update(json.load(f))
+        elif os.path.exists(parent_conf):
+            with open(parent_conf, "r") as f:
+                self.update(json.load(f))
+        else:
+            warnings.warn(
+                f"Configuration file not found at {conf_file}. No changes made."
+            )
 
     def reset(self):
         """

@@ -57,6 +57,8 @@ def fetch_data(dataset, stream_data=False):
         List of paths to downloaded files
 
     """
+    # save the current configuration settings
+    config.save()
     manager = data_manager()
     project = {dataset + "/" + k: v for k, v in DATA_URLS[dataset].items()}
     files = []
@@ -133,7 +135,8 @@ def download_notebook(dataset, overwrite=False):
         Whether to overwrite the notebook if it already exists. Defaults to False.
         Overwriting mean reconverting the Jupyter notebook from the markdown file.
     """
-
+    # save the current configuration settings
+    config.save()
     if os.path.exists(config["notebook_dir"] + "/" + dataset + ".ipynb"):
         if overwrite is False:
             print(
