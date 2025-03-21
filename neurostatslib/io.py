@@ -137,7 +137,7 @@ def download_notebook(dataset, overwrite=False):
     if os.path.exists(config["notebook_dir"] + "/" + dataset + ".ipynb"):
         if overwrite is False:
             print(
-                f"Notebook already exists at {config['notebook_dir'] + "/" + dataset + ".ipynb"}\n"
+                f"Notebook already exists at {config['notebook_dir']}/{dataset}.ipynb\n"
                 "Set overwrite=True to download again."
             )
             return
