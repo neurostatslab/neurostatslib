@@ -9,50 +9,50 @@ def parse_neurostatslib_args(args=None):
     Command line arguments for the neurostatslib package.
     """
     parser = argparse.ArgumentParser(
-        description="Neuroscience data analysis tutorials by NeuroStatsLab using publicly available, curated data sets",
+        description="Download or manage neuroscience data analysis tutorials provided by the neurostatslib package. "
+        "On the first run, a local configuration file 'neurstatslib_conf.json' is created in the current working "
+        "directory.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--data-dir",
         "--data_dir",
+        "--data-dir",
         type=str,
         default=config["data_dir"],
-        help="Path to the directory where data is stored.",
+        help="Path to the directory where data is stored. "
+        "When set, the setting is saved to the local configuration file.",
         dest="data_dir",
     )
     parser.add_argument(
-        "--notebook-dir",
         "--notebook_dir",
+        "--notebook-dir",
         type=str,
         default=config["notebook_dir"],
-        help="Path to the directory where notebooks are stored.",
+        help="Path to the directory where notebooks are stored. "
+        "When set, the setting is saved to the local configuration file.",
         dest="notebook_dir",
     )
     parser.add_argument(
-        "--notebook-source",
         "--notebook_source",
+        "--notebook-source",
         type=str,
         default=config["notebook_source"],
-        help="GitHub branch to pull the notebooks.",
+        help="GitHub branch to pull the notebooks. When set, the setting is saved the a local configuration file.",
         dest="notebook_source",
     )
     parser.add_argument(
-        "--save",
-        "-s",
+        "--download",
+        "-d",
+        choices=list(DATA_REGISTRY.keys()),
+        help="Download a specific dataset and tutorial notebook to the data and notebook directories.",
+        dest="download",
+    )
+    parser.add_argument(
+        "--config",
+        "-c",
         action="store_true",
-        help="Save the configuration settings to a local file.",
-    )
-    parser.add_argument(
-        "--download-data",
-        "--download_data",
-        choices=["all"] + list(DATA_REGISTRY.keys()),
-        help="Download a specific dataset or all datasets.",
-    )
-    parser.add_argument(
-        "--download-notebook",
-        "--download_notebook",
-        choices=["all"] + list(DATA_REGISTRY.keys()),
-        help="Download a specific notebook or all notebooks.",
+        help="Print the current configuration settings.",
+        dest="config",
     )
     return parser.parse_args(args)
 
@@ -62,25 +62,17 @@ def neurostatslib(args=None):
     Entry point for the neurostatslib script.
     """
     args = parse_neurostatslib_args(args)
+
     config["data_dir"] = args.data_dir
     config["notebook_dir"] = args.notebook_dir
     config["notebook_source"] = args.notebook_source
+    config.save()
 
-    if args.save:
-        config.save()
+    if args.config:
+        print("Current configuration settings for neurostatslib:")
+        for key, value in config.items():
+            print(f"  --{key}: {value}")
 
-    if args.download_data:
-        if args.download_data == "all":
-            for dataset in DATA_REGISTRY.keys():
-                fetch_data(dataset)
-        else:
-            fetch_data(args.download_data)
-
-    if args.download_notebook:
-        if args.download_notebook == "all":
-            for dataset in DATA_REGISTRY.keys():
-                download_notebook(dataset)
-        else:
-            download_notebook(args.download_notebook)
-
-    return config
+    if args.download:
+        fetch_data(args.download)
+        download_notebook(args.download)

@@ -4,8 +4,8 @@ import pooch
 from functools import wraps
 from os import PathLike
 from collections.abc import MutableMapping
-from .registry import DATA_REGISTRY, DATA_URLS, NOTEBOOK_REGISTRY
-from .utils import flatten
+from .registry import DATA_REGISTRY
+import warnings
 
 DATA_SETS = DATA_REGISTRY.keys()
 
@@ -46,6 +46,14 @@ def _validate_conf(func):
                 if not isinstance(value, str):
                     raise TypeError("notebook_dir must be a string or PathLike object")
 
+            case "notebook_source":
+                warnings.warn(
+                    "Changing the notebook_source will result in downloading different versions of the notebooks. "
+                    "Ensure that the source branch exists before changing this setting."
+                )
+                if not isinstance(value, str):
+                    raise TypeError("notebook_source must be a string")
+
         return func(self, key, value)
 
     return wrapper
@@ -71,27 +79,27 @@ class Config(MutableMapping):
     Examples
     --------
     View current configuration settings:
-    >>> import pynacollada as nac
-    >>> nac.config
+    >>> import neurostatslib as nsl
+    >>> nsl.config
     {'data_dir': '/path/to/data'}
 
     Update configuration settings:
     1. Using `update` method
-    >>> nac.config.update({'data_dir': '/path/to/new/data'})
-    >>> nac.config
+    >>> nsl.config.update({'data_dir': '/path/to/new/data'})
+    >>> nsl.config
     {'data_dir': '/path/to/new/data'}
-    >>> nac.config.update(data_dir = '/path/to/newer/data')
-    >>> nac.config
+    >>> nsl.config.update(data_dir = '/path/to/newer/data')
+    >>> nsl.config
     {'data_dir': '/path/to/newer/data'}
 
     2. Using dictionary-like syntax
-    >>> nac.config['data_dir'] = '/path/to/newer/data'
-    >>> nac.config
+    >>> nsl.config['data_dir'] = '/path/to/newer/data'
+    >>> nsl.config
     {'data_dir': '/path/to/newer/data'}
 
     3. Update as an attribute
-    >>> nac.config.data_dir = '/path/to/newest/data'
-    >>> nac.config
+    >>> nsl.config.data_dir = '/path/to/newest/data'
+    >>> nsl.config
     {'data_dir': '/path/to/newest/data'}
     """
 
@@ -112,18 +120,6 @@ class Config(MutableMapping):
                 cls._instance.update(conf)
 
         return cls._instance
-
-    # def __init__(self, conf_file=LOCAL_CONFIG, defaults=defaults):
-    #     super().__init__()
-    #     self.update(defaults)
-
-    #     if os.path.exists(conf_file):
-    #         import json
-
-    #         with open(conf_file, "r") as f:
-    #             conf = json.load(f)
-
-    #         self.update(conf)
 
     @_validate_conf
     def __setitem__(self, key, value):
@@ -156,12 +152,12 @@ class Config(MutableMapping):
         Examples
         --------
         Save current configuration settings in the current working directory:
-        >>> import neurotutorials as nt
-        >>> nt.config["data_dir"] = "/new/path/to/data"
-        >>> nt.config.save()
+        >>> import neurostatslib as nsl
+        >>> nsl.config["data_dir"] = "/new/path/to/data"
+        >>> nsl.config.save()
 
         Save configuration settings to a different location:
-        >>> nt.config.save("/path/to/config.json")
+        >>> nsl.config.save("/path/to/config.json")
         """
         with open(conf_file, "w") as f:
             json.dump(self.__dict__, f, indent=4)
@@ -178,8 +174,8 @@ class Config(MutableMapping):
         Examples
         --------
         Load configuration settings from a different location:
-        >>> import neurotutorials as nt
-        >>> nt.config.load("/path/to/config.json")
+        >>> import neurostatslib as nsl
+        >>> nsl.config.load("/path/to/config.json")
         """
         with open(conf_file, "r") as f:
             self.update(json.load(f))
