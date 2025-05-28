@@ -84,6 +84,9 @@ def load_mat(file_path, file_name="root"):
             data[Path(f).stem] = mat73.loadmat(f)
         except TypeError:
             # older mat files are handled by scipy
-            data[Path(f).stem] = scipy.io.loadmat(f)
+            data[Path(f).stem] = scipy.io.loadmat(f, simplify_cells=True)
+            data[Path(f).stem].pop("__header__")
+            data[Path(f).stem].pop("__version__")
+            data[Path(f).stem].pop("__globals__")
 
     return mat_container(data, file_name)
