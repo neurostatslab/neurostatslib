@@ -23,6 +23,8 @@ DEFAULTS = dict(
         "notebook_dir": DEFAULT_NOTEBOOK_DIR,
         # which branch to download the notebooks from
         "notebook_source": "main",
+        # use pooch as a download manager, otherwise must specify all data paths
+        "use_pooch": True,
     }
 )
 

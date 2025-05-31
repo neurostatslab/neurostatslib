@@ -76,6 +76,7 @@ def load_mat(file_path, file_name="root"):
     """
     if isinstance(file_path, str):
         file_path = [file_path]
+        file_name = Path(file_path[0]).stem
 
     data = {}
     for f in file_path:

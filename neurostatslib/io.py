@@ -91,8 +91,15 @@ def load_data(dataset, stream_data=False):
 
 
     """
-    files = fetch_data(dataset, stream_data)
-    return DATA_LOADER[dataset](files)
+    if config["use_pooch"]:
+        files = fetch_data(dataset, stream_data)
+        return DATA_LOADER[dataset](files)
+    else:
+        # very special case that most users will not need.
+        # must have custom DATA_URLS and DATA_LOADER in config file
+        if ("DATA_URLS" in config) and ("DATA_LOADER" in config):
+            files = config["DATA_URLS"][dataset]
+            return config["DATA_LOADER"][dataset](files)
 
 
 def fetch_notebook(dataset):
