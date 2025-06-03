@@ -141,7 +141,7 @@ class MatStruct:
                 data = MatStruct(data, key)
             return data
         else:
-            super().__getattr__(key)
+            raise AttributeError(f"'{self.name}' object has no attribute '{key}'.")
 
     def __getitem__(self, key: int):
         if isinstance(key, int):
