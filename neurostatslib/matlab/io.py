@@ -1,4 +1,4 @@
-from .types import MatStruct
+from .struct import MatStruct
 from .hdf5 import loadmat as hdf5_loadmat
 from scipy.io import loadmat as scipy_loadmat
 from pathlib import Path
