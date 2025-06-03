@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Union
 
 
 def get_basic_array_info(array):
@@ -73,45 +74,35 @@ def generate_array_html_repr(array_info_dict, array, dataset_type=None):
     return repr_html
 
 
-def get_container_list_info(containers):
-    container_list_info = {"index": [], "fields": []}
-    for container in containers:
-        container_list_info["index"].append(container.name)
-        container_list_info["fields"].append("\n".join(list(container.data.keys())))
-
-    return container_list_info
-
-
-def generate_list_html_repr(container_info_dict, dataset_type=None):
-    def html_table(item_dicts) -> str:
-        """
-        Generates an html table from a dictionary
-        """
-        report = '<table class="data-info">'
-        report += "<tbody>"
-        for k, v in item_dicts.items():
-            report += f"<tr>" f'<th style="text-align: left">{k}</th>'
-            for i in v:
-                report += f'<td style="text-align: left">{i}</td>'
-            report += f"</tr>"
-        report += "</tbody>"
-        report += "</table>"
-        return report
-
-    array_info_html = html_table(container_info_dict)
-    repr_html = (
-        dataset_type + "<br>" + array_info_html
-        if dataset_type is not None
-        else array_info_html
-    )
-
-    return repr_html
-
-
 class MatStruct:
-    """Wrapper for MATLAB-like structured arrays."""
+    """
+    Class to represent MATLAB structures in Python.
+    This class mimics the behavior of MATLAB structs, allowing access to fields
+    as attributes and providing a structured representation of the data.
 
-    def __init__(self, data, name="root"):
+    An HTML representation is also provided for easy visualization in Jupyter notebooks,
+    based on styling from NWB objects.
+
+    Parameters
+    ----------
+    data : dict or np.ndarray
+        The data to be represented as a MATLAB struct. It can be a dictionary or a structured NumPy array.
+    name : str, optional
+        The name of the struct, by default "root". This is used in the HTML representation.
+
+    Attributes
+    ----------
+    data : np.void or np.ndarray
+        The structured data represented as a NumPy void array or structured array.
+    name : str
+        The name of the struct, used in the HTML representation.
+    shape : tuple
+        The shape of the struct.
+    fields : list
+        The fields names of the MATLAB struct, which can be accessed as attributes.
+    """
+
+    def __init__(self, data: Union[np.array, np.void, dict], name: str = "root"):
         self.name = name
         if isinstance(data, dict):
             # Convert dict to structured array
@@ -121,10 +112,6 @@ class MatStruct:
             self.data = data
         else:
             raise ValueError("Data must be a structured array with named fields.")
-
-    def __call__(self, key):
-        if isinstance(key, int):
-            return MatStruct(self.data[key], name=self.name)
 
     @property
     def shape(self):
@@ -137,7 +124,11 @@ class MatStruct:
     def __dir__(self):
         return ["shape", "fields"] + self.fields
 
-    def __getattr__(self, key):
+    def __getattr__(self, key: str):
+        """
+        Access fields as attributes. If the field is not found, it raises an AttributeError.
+        If the field is a structured array, it returns a MatStruct object for that field.
+        """
         if key in self.fields:
             data = self.data[key]
             if isinstance(data, np.ndarray):
@@ -151,6 +142,12 @@ class MatStruct:
             return data
         else:
             super().__getattr__(key)
+
+    def __getitem__(self, key: int):
+        if isinstance(key, int):
+            return MatStruct(self.data[key], name=self.name)
+        else:
+            raise KeyError(f"invalid index: {key}. index must be an integer.")
 
     def __repr__(self):
         return MatStruct.__smart_str_struct(self, 0)
@@ -242,8 +239,10 @@ class MatStruct:
                     key, value, level, current_access_code
                 )
 
-        elif isinstance(fields, list):
-            for index, item in enumerate(fields[:10]):
+        elif isinstance(fields, list) or (
+            isinstance(fields, np.ndarray) and np.issubdtype(fields.dtype, np.str_)
+        ):
+            for index, item in enumerate(fields):
                 access_code += f"[{index}]"
                 html_repr += self._generate_field_html(index, item, level, access_code)
         else:
@@ -270,14 +269,14 @@ class MatStruct:
         is_array_data = hasattr(value, "shape") and hasattr(value, "dtype")
 
         if is_array_data:
-            if value.dtype.names is not None:
+            if (value.dtype.names is not None) or np.issubdtype(value.dtype, np.str_):
                 # If the value is a structured array, we generate HTML for its fields
                 html_content = self._generate_html_repr(
                     value, level + 1, access_code, is_field=False
                 )
             else:
                 html_content = self._generate_array_html(value, level + 1)
-        elif isinstance(value, (list, dict, np.ndarray)):
+        elif isinstance(value, (list, dict)):
             html_content = self._generate_html_repr(
                 value, level + 1, access_code, is_field=False
             )
