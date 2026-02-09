@@ -7,7 +7,7 @@ from contextlib import nullcontext as does_not_raise
 
 
 def test_config_defaults():
-    defaults = nsl.settings.defaults
+    defaults = nsl.config.defaults
 
     for key, value in defaults.items():
         assert nsl.config[key] == value
@@ -22,7 +22,7 @@ def test_config_reset():
 
     nsl.config.reset()
 
-    for key, value in nsl.settings.defaults.items():
+    for key, value in nsl.config.defaults.items():
         assert nsl.config[key] == value
 
     assert "user" not in nsl.config.keys()
@@ -31,8 +31,8 @@ def test_config_reset():
 def test_config_instance():
     nsl.config.reset()
     nsl.config["data_dir"] = "/path/to/data"
-    assert nsl.settings.Config() == nsl.config
-    assert id(nsl.settings.Config()) == id(nsl.config)
+    assert nsl.config.Config() == nsl.config
+    assert id(nsl.config.Config()) == id(nsl.config)
 
 
 @pytest.fixture
@@ -158,7 +158,7 @@ class TestConfig:
 
         # save, reset, and reload config
         nsl.config.save()
-        assert Path(nsl.settings.LOCAL_CONFIG).exists()
+        assert Path(nsl.config.LOCAL_CONFIG).exists()
         nsl.config.reset()
         nsl.config.load()
 
@@ -205,8 +205,8 @@ class TestConfig:
         assert nsl.config["user"] != config_new["user"]
 
         # remove the config files
-        Path(nsl.settings.LOCAL_CONFIG).unlink()
-        assert not Path(nsl.settings.LOCAL_CONFIG).exists()
+        Path(nsl.config.LOCAL_CONFIG).unlink()
+        assert not Path(nsl.config.LOCAL_CONFIG).exists()
 
         Path(path).unlink()
         assert not Path(path).exists()
@@ -227,7 +227,7 @@ class TestConfig:
 
         # save and reset config
         nsl.config.save()
-        assert Path(nsl.settings.LOCAL_CONFIG).exists()
+        assert Path(nsl.config.LOCAL_CONFIG).exists()
         nsl.config.reset()
 
         # store a new config with a custom name
@@ -281,8 +281,8 @@ class TestConfig:
         os.rmdir("child")
 
         # remove the config files
-        Path(nsl.settings.LOCAL_CONFIG).unlink()
-        assert not Path(nsl.settings.LOCAL_CONFIG).exists()
+        Path(nsl.config.LOCAL_CONFIG).unlink()
+        assert not Path(nsl.config.LOCAL_CONFIG).exists()
 
         Path(path).unlink()
         assert not Path(path).exists()

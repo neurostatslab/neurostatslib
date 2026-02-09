@@ -6,7 +6,7 @@ from .registry import (
     NOTEBOOK_REGISTRY,
 )
 import jupytext
-from .settings import config
+from .config import config
 import pooch
 from .utils import flatten
 import os
@@ -132,7 +132,8 @@ def download_notebook(dataset, overwrite=False):
     Downloads a tutorial notebook from GitHub to the notebook directory.
 
     Under the hood, this function fetches the notebook markdown file from GitHub and converts it to a Jupyter notebook,
-    where the jupyter notebook is saved to the notebook directory.
+    where the jupyter notebook is saved to the notebook directory. We're downloading it from GitHub to ensure that it
+    is always the latest version.
 
     Parameters
     ----------

@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.6
+    jupytext_version: 1.19.1
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -31,7 +31,7 @@ from scipy import signal
 import seaborn as sns
 import tqdm
 import pynapple as nap
-import pynacollada as nac
+import neurostatslib as nsl
 from scipy.ndimage import gaussian_filter1d
 import textwrap
 
@@ -45,7 +45,7 @@ def printeval(expr):
 
 def plot_place_fields(pf, axs, title=None, xlabel=None):
     for c, ax in zip(pf, axs):
-        ax.fill_between(pf[c].index.values, np.zeros_like(pf[c]), pf[c].values)
+        ax.fill_between(pf.sel(unit=c).values, np.zeros_like(pf[c]), pf[c].values)
         ax.set_yticks([])
         # ax.set_xticks([])
     if title is not None:
@@ -68,7 +68,7 @@ For this tutorial, we can use the pynacollada function `load_data` and the tutor
 
 ```{code-cell} ipython3
 # load pynacollada data set
-data = nac.load_data("place_cells")
+data = nsl.load_data("place_cells")
 print(data)
 ```
 
@@ -79,14 +79,14 @@ The `units` field is a [`TsGroup`](https://pynapple.org/generated/pynapple.TsGro
 - **location**, **shank**, and **cell_type**: variables saved and imported from the original data set.
 
 ```{code-cell} ipython3
-printeval("data['units']")    # print the entire TsGroup object
+printeval("data['units'][[1,2,6,7,9]]")    # print five units
 printeval("data['units'][1]") # print the Ts object corresponding to unit 1
 ```
 
 ### `rem`, `nrem`, and `forward_ep`
 
 
-The next three objects; `rem`, `nrem`, and `forward_ep`; are all [`IntervalSet`](https://pynapple.org/generated/pynapple.IntervalSet.html#pynapple.IntervalSet) objects containing time windows of REM sleep, nREM sleep, and forward runs down the linear maze, respectively. All intervals in `forward_ep` occur in the middle of the session, while `rem` and `nrem` both contain sleep epochs that occur before and after exploration. 
+The next three objects; `rem`, `nrem`, and `forward_ep`; are all [`IntervalSet`](https://pynapple.org/generated/pynapple.IntervalSet.html#pynapple.IntervalSet) objects containing time windows of REM sleep, nREM sleep, and forward runs down the linear maze, respectively. All intervals in `forward_ep` occur in the middle of the session, while `rem` and `nrem` both contain sleep epochs that occur before and after exploration.
 
 ```{code-cell} ipython3
 printeval("data['rem']")            # print the REM intervals
@@ -138,7 +138,7 @@ ax.legend([l1[0], l2[0]], ["animal position", "forward run epochs"]);
 ```
 
 ## Identifying place fields
-Our first analysis will identify each unit's place field. We can do this using the pynapple function `compute_1d_tuning_curves` and then apply some post-processing to clean up and isolate units with strong spatial selectivity. Specifically, the following analysis will:
+Our first analysis will identify each unit's place field. We can do this using the pynapple function `compute_tuning_curves` and then apply some post-processing to clean up and isolate units with strong spatial selectivity. Specifically, the following analysis will:
 1. Extract the relevant fields from the loaded dictionary
 2. Compute the tuning curves, i.e. place fields, using pynapple
 3. Apply a Gaussian filter to smooth the place fields
@@ -156,9 +156,9 @@ lfp = data["eeg"][:,0]                  # grab the first eeg column
 ##-- 2. Compute place fields --##
 # compute place fields in 2cm bins across linear track
 track_len = position.max() - position.min() # get total length of the track (in cm)
-nb_bins = int(track_len / 2)                # number of 2 cm bins, rounded to an integer
-# use pynapple to compute 1d tuning curves over position, returning a pandas dataframe
-place_fields = nap.compute_1d_tuning_curves(spikes, position, nb_bins = nb_bins)
+bins = int(track_len / 2)                # number of 2 cm bins, rounded to an integer
+# use pynapple to compute 1d tuning curves over position, returning an pandas dataframe
+place_fields = nap.compute_tuning_curves(spikes, position, bins = bins, feature_names=["position"], return_pandas=True)
 
 ##-- 3. Smooth place fields --##
 # use scipy to smooth the place fields
@@ -202,7 +202,7 @@ good_spikes = spikes[good_idx]
 
 ##-- 1. Compute place fields on forward runs --##
 # now we pass the argument ep=forward_ep to specify that tuning curves are only calculated during forward runs
-forward_fields = nap.compute_1d_tuning_curves(good_spikes, position, ep=forward_ep, nb_bins=nb_bins)
+forward_fields = nap.compute_tuning_curves(good_spikes, position, epochs=forward_ep, bins=bins, feature_names=["position"], return_pandas=True)
 forward_fields[:] = gaussian_filter1d(forward_fields.values, sigma, axis=0)
 
 ##-- 2. Compute place fields on backward runs --##
@@ -211,7 +211,7 @@ run_ep = position.time_support
 # backward runs are the set difference between all runs and forward runs
 backward_ep = run_ep.set_diff(forward_ep)
 # pass ep=backward_run to compute only during backward runs
-backward_fields = nap.compute_1d_tuning_curves(good_spikes, position, ep=backward_ep, nb_bins=nb_bins)
+backward_fields = nap.compute_tuning_curves(good_spikes, position, epochs=backward_ep, bins=bins, feature_names=["position"], return_pandas=True)
 backward_fields[:] = gaussian_filter1d(backward_fields.values, sigma, axis=0)
 
 # plot results
@@ -317,7 +317,7 @@ In order to examine phase precession in place cells, we need to identify the ins
 ```{code-cell} ipython3
 # compute phase using the angle of the hilbert transform of the filtered signal
 phase = np.angle(signal.hilbert(theta_band)) 
-phase = (phase + 2 * np.pi) % (2 * np.pi) # wrap to [0,2pi]
+phase = phase % (2 * np.pi) # wrap to [0,2pi]
 # store phase into a pynapple object for easy time alignment
 theta_phase = nap.Tsd(t=theta_band.t, d=phase)
 
@@ -437,9 +437,8 @@ Another way of putting it is $P(spikes)$ is the normalization factor such that $
 We can perform Baysian decoding of position using the pynapple function [`decode_1d`](https://pynapple.org/generated/pynapple.process.decoding.html#pynapple.process.decoding.decode_1d). The following example will:
 1. Cross-validation: Split the data into a training set for rate map computation, and a test set for decoding
 2. Compute tuning curves during the training set
-3. Smooth the spike counts for a better decoder estimate
-4. Decode position using pynapple
-5. Plot the results
+3. Decode position using pynapple, using a sliding window for smoothing
+4. Plot the results
 
 ```{code-cell} ipython3
 ##-- 1. Cross-validation setup --##
@@ -450,24 +449,17 @@ ep_train = forward_ep.set_diff(ex_run_ep)
 
 ##-- 2. Compute place fields --##
 # compute place fields during training set and smooth
-place_fields = nap.compute_1d_tuning_curves(spikes, position, ep=ep_train, nb_bins=nb_bins)
-place_fields[:] = gaussian_filter1d(place_fields.values, sigma, axis=0)
+place_fields = nap.compute_tuning_curves(spikes, position, epochs=ep_train, bins=bins, feature_names=["position"])
+place_fields[:] = gaussian_filter1d(place_fields.values, sigma, axis=1)
 
-##-- 3. Smooth spike counts --##
-# restrict all spikes to test epoch and count in 40ms bins
-counts = spikes.restrict(ep_test).count(0.04)
-# smooth counts by convolving with a length-5 window of ones (i.e. moving sum of length 5)
-# this will make bins be 40ms * 5 = 200ms wide
-smth_counts = counts.convolve(np.ones(5))
+##-- 3. Decode position with pynapple --##
+# decode over ep_test, using a sliding window of 5 bins
+smth_decoded_position, smth_decoded_prob = nap.decode_bayes(place_fields, spikes, ep_test, bin_size=0.04, sliding_window_size=5)
 
-##-- 4. Decode position with pynapple --##
-# decode over ep_test, giving the smoothed spike counts
-smth_decoded_position, smth_decoded_prob = nap.decode_1d(place_fields, smth_counts, ep_test, bin_size=0.2)
-
-##-- 5. Plot the results --##
+##-- 4. Plot the results --##
 fig,ax = plt.subplots(figsize=(10, 3), constrained_layout=True)
 # plot the decoded probability of position
-c = ax.pcolormesh(smth_decoded_position.index,place_fields.index,np.transpose(smth_decoded_prob), cmap="magma")
+c = ax.pcolormesh(smth_decoded_position.index,place_fields.position,np.transpose(smth_decoded_prob), cmap="magma")
 # plot the decoded position, i.e. the position of max probability, as a dashed green line
 ax.plot(smth_decoded_position, "--", color="limegreen", label="decoded position")
 # plot the true animal position as a solid green line
@@ -482,12 +474,8 @@ ax.set(xlabel="Time (s)", ylabel="Position (cm)");
 Theta sequences are often visualized by using Bayesian decoding on a faster time scale. The following example will repeat the steps from the previous analysis, except now predicting spiking activity in shorter time bins: specifically, during 50 ms smoothed bins.
 
 ```{code-cell} ipython3
-##-- Smooth counts in smaller time windows --##
-counts = spikes.restrict(ep_test).count(0.01) # count in 10ms bins
-smth_counts = counts.convolve(np.ones(5))     # moving sum of length 5
-
 ##-- Run decoding on test epoch --##
-smth_decoded_position, smth_decoded_prob = nap.decode_1d(place_fields, smth_counts, ep_test, bin_size=0.05)
+smth_decoded_position, smth_decoded_prob = nap.decode_bayes(place_fields, spikes, ep_test, bin_size=0.01, sliding_window_size=5)
 
 ##-- Plot the decoded probability, predicted position, and true position --##
 fig, axs = plt.subplots(2, 1, figsize=(10, 4), constrained_layout=True, height_ratios=[3,1], sharex=True)
@@ -508,38 +496,3 @@ fig.supxlabel("Time (s)");
 ```
 
 ## Fitting a GLM
-
-```{code-cell} ipython3
-position_up = data["position"].interpolate(theta_phase).dropna()
-
-speed = []
-for s, e in position_up.time_support.values: # Time support contains the epochs
-    pos_ep = position_up.get(s, e)
-    speed_ep = np.abs(np.diff(pos_ep)) # Absolute difference of two consecutive points
-    speed_ep = np.pad(speed_ep, [0, 1], mode="edge") # Adding one point at the end to match the size of the position array
-    speed_ep = speed_ep * sample_rate # Converting to cm/s
-    speed.append(speed_ep)
-
-speed = nap.Tsd(t=position_up.t, d=np.hstack(speed), time_support=position_up.time_support)
-```
-
-```{code-cell} ipython3
-predictors = np.stack((position_up, speed, theta_phase.restrict(position_up.time_support)))
-X = nap.TsdFrame(t=position_up.t, d=predictors.T, time_support=position_up.time_support)
-
-unit = 117
-bin_size = 0.001
-counts = spikes[unit].count(bin_size, ep=X.time_support)
-X = X.bin_average(bin_size)
-
-model = nmo.glm.GLM(solver_name="LBFGS")
-model.fit(X, counts)
-```
-
-```{code-cell} ipython3
-
-```
-
-```{code-cell} ipython3
-counts.shape
-```

@@ -4,10 +4,8 @@ import shutil
 import glob
 from pathlib import Path
 from pynwb import NWBHDF5IO
-import mat73
+from .matlab.io import loadmat
 import pynapple as nap
-from .containers import mat_container
-import scipy
 
 
 # dataset = "mesoscale_activity"
@@ -74,20 +72,13 @@ def load_mat(file_path, file_name="root"):
     Load in a .mat file or files and returns an extended HDMF container with the data. The HDMF container allows for
     easy visualization of the data and its structure in a Jupyter notebook.
     """
-    if isinstance(file_path, str):
-        file_path = [file_path]
-        file_name = Path(file_path[0]).stem
+    # if isinstance(file_path, str):
+    #     file_path = [file_path]
+    #     file_name = Path(file_path[0]).stem
 
-    data = {}
-    for f in file_path:
-        try:
-            # mat files saved in >v7.3 format are hdf5 files and handled by mat73
-            data[Path(f).stem] = mat73.loadmat(f)
-        except TypeError:
-            # older mat files are handled by scipy
-            data[Path(f).stem] = scipy.io.loadmat(f, simplify_cells=True)
-            data[Path(f).stem].pop("__header__")
-            data[Path(f).stem].pop("__version__")
-            data[Path(f).stem].pop("__globals__")
+    # data = {}
+    # for f in file_path:
+    #     data[Path(f).stem] = loadmat(f)
 
-    return mat_container(data, file_name)
+    # return mat_container(data, file_name)
+    return loadmat(file_path)

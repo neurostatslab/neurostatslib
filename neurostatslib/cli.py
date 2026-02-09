@@ -1,5 +1,5 @@
 import argparse
-from .settings import config
+from .config import config
 from .registry import DATA_REGISTRY
 from .io import fetch_data, download_notebook
 
