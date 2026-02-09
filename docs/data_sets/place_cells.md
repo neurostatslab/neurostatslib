@@ -45,7 +45,7 @@ def printeval(expr):
 
 def plot_place_fields(pf, axs, title=None, xlabel=None):
     for c, ax in zip(pf, axs):
-        ax.fill_between(pf.sel(unit=c).values, np.zeros_like(pf[c]), pf[c].values)
+        ax.fill_between(pf[c].index.values, np.zeros_like(pf[c]), pf[c].values)
         ax.set_yticks([])
         # ax.set_xticks([])
     if title is not None:
